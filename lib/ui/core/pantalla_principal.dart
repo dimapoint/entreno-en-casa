@@ -40,59 +40,70 @@ class _EstadoPantallaPrincipal extends State<PantallaPrincipal> {
   @override
   Widget build(BuildContext context) {
     final conRiel = MediaQuery.sizeOf(context).width >= _anchoMinimoParaRiel;
-    return Scaffold(
-      body: Row(
-        children: [
-          if (conRiel) ...[
-            NavigationRail(
-              selectedIndex: _indice,
-              onDestinationSelected: _seleccionar,
-              labelType: NavigationRailLabelType.all,
-              destinations: [
-                for (final destino in _destinos)
-                  NavigationRailDestination(
-                    icon: Icon(destino.icono),
-                    selectedIcon: Icon(destino.iconoActivo),
-                    label: Text(destino.etiqueta),
+    return PopScope(
+      // Atrás saca de otra pestaña a Hoy; recién desde Hoy cierra la app.
+      canPop: _indice == 0,
+      onPopInvokedWithResult: (salio, _) {
+        if (!salio) _seleccionar(0);
+      },
+      child: Scaffold(
+        body: Row(
+          children: [
+            if (conRiel) ...[
+              NavigationRail(
+                selectedIndex: _indice,
+                onDestinationSelected: _seleccionar,
+                labelType: NavigationRailLabelType.all,
+                destinations: [
+                  for (final destino in _destinos)
+                    NavigationRailDestination(
+                      icon: Icon(destino.icono),
+                      selectedIcon: Icon(destino.iconoActivo),
+                      label: Text(destino.etiqueta),
+                    ),
+                ],
+              ),
+              const VerticalDivider(width: 1),
+            ],
+            // La clave conserva el estado de las pestañas si la ventana cruza el ancho del riel.
+            Expanded(
+              key: const ValueKey('contenido'),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: _anchoMaximoDelContenido,
                   ),
-              ],
-            ),
-            const VerticalDivider(width: 1),
-          ],
-          // La clave conserva el estado de las pestañas si la ventana cruza el ancho del riel.
-          Expanded(
-            key: const ValueKey('contenido'),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: _anchoMaximoDelContenido),
-                child: IndexedStack(
-                  index: _indice,
-                  children: [
-                    PantallaHoy(irAProgreso: () => _seleccionar(_indiceProgreso)),
-                    const PantallaProgreso(),
-                    const PantallaGuia(),
-                    const PantallaAjustes(),
-                  ],
+                  child: IndexedStack(
+                    index: _indice,
+                    children: [
+                      PantallaHoy(
+                        irAProgreso: () => _seleccionar(_indiceProgreso),
+                      ),
+                      const PantallaProgreso(),
+                      const PantallaGuia(),
+                      const PantallaAjustes(),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+        bottomNavigationBar: conRiel
+            ? null
+            : NavigationBar(
+                selectedIndex: _indice,
+                onDestinationSelected: _seleccionar,
+                destinations: [
+                  for (final destino in _destinos)
+                    NavigationDestination(
+                      icon: Icon(destino.icono),
+                      selectedIcon: Icon(destino.iconoActivo),
+                      label: destino.etiqueta,
+                    ),
+                ],
+              ),
       ),
-      bottomNavigationBar: conRiel
-          ? null
-          : NavigationBar(
-              selectedIndex: _indice,
-              onDestinationSelected: _seleccionar,
-              destinations: [
-                for (final destino in _destinos)
-                  NavigationDestination(
-                    icon: Icon(destino.icono),
-                    selectedIcon: Icon(destino.iconoActivo),
-                    label: destino.etiqueta,
-                  ),
-              ],
-            ),
     );
   }
 }

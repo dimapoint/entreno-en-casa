@@ -6,7 +6,11 @@ import '../../view_models/fuerza_view_model.dart';
 import 'ficha_tecnica.dart';
 
 class TarjetaEjercicio extends StatelessWidget {
-  const TarjetaEjercicio({super.key, required this.viewModel, required this.ejercicio});
+  const TarjetaEjercicio({
+    super.key,
+    required this.viewModel,
+    required this.ejercicio,
+  });
 
   final FuerzaViewModel viewModel;
   final Ejercicio ejercicio;
@@ -40,7 +44,8 @@ class TarjetaEjercicio extends StatelessWidget {
                 IconButton(
                   tooltip: 'Ficha técnica: ${ejercicio.nombre}',
                   icon: const Icon(Icons.info_outline),
-                  onPressed: () => mostrarFichaTecnica(context, ejercicio, nivel),
+                  onPressed: () =>
+                      mostrarFichaTecnica(context, ejercicio, nivel),
                 ),
               ],
             ),
@@ -52,22 +57,34 @@ class TarjetaEjercicio extends StatelessWidget {
               ultimaVez == null
                   ? 'Primera vez con este ejercicio.'
                   : 'Última vez (${fechaCorta(ultimaVez.fecha)}), nivel ${ultimaVez.nivel}: '
-                      '${ultimaVez.repeticiones.join(' · ')} ${ejercicio.esTiempo ? 's' : 'reps'}',
-              style: tema.textTheme.bodySmall?.copyWith(color: tema.colorScheme.onSurfaceVariant),
+                        '${ultimaVez.repeticiones.join(' · ')} ${ejercicio.esTiempo ? 's' : 'reps'}',
+              style: tema.textTheme.bodySmall?.copyWith(
+                color: tema.colorScheme.onSurfaceVariant,
+              ),
             ),
             SegmentedButton<int>(
               showSelectedIcon: false,
               style: SegmentedButton.styleFrom(minimumSize: const Size(0, 48)),
               segments: [
-                for (var opcion = 1; opcion <= ejercicio.niveles.length; opcion++)
+                for (
+                  var opcion = 1;
+                  opcion <= ejercicio.niveles.length;
+                  opcion++
+                )
                   ButtonSegment(value: opcion, label: Text('Nivel $opcion')),
               ],
               selected: {nivel},
-              onSelectionChanged: (elegidos) => viewModel.elegirNivel(ejercicio, elegidos.single),
+              onSelectionChanged: (elegidos) =>
+                  viewModel.elegirNivel(ejercicio, elegidos.single),
             ),
-            Text(ejercicio.niveles[nivel - 1], style: tema.textTheme.bodyMedium),
-            if (sugerencia != null) _CuadroSugerencia(sugerencia, ejercicio, viewModel),
-            if (hechas.isNotEmpty) _SeriesHechas(viewModel: viewModel, ejercicio: ejercicio),
+            Text(
+              ejercicio.niveles[nivel - 1],
+              style: tema.textTheme.bodyMedium,
+            ),
+            if (sugerencia != null)
+              _CuadroSugerencia(sugerencia, ejercicio, viewModel),
+            if (hechas.isNotEmpty)
+              _SeriesHechas(viewModel: viewModel, ejercicio: ejercicio),
             if (viewModel.ejercicioCompleto(ejercicio))
               Row(
                 spacing: 8,
@@ -77,7 +94,11 @@ class TarjetaEjercicio extends StatelessWidget {
                 ],
               )
             else
-              _Contador(viewModel: viewModel, ejercicio: ejercicio, serieActual: hechas.length + 1),
+              _Contador(
+                viewModel: viewModel,
+                ejercicio: ejercicio,
+                serieActual: hechas.length + 1,
+              ),
           ],
         ),
       ),
@@ -149,7 +170,9 @@ class _SeriesHechas extends StatelessWidget {
           ),
         ),
         TextButton(
-          style: TextButton.styleFrom(minimumSize: TarjetaEjercicio._tamanoTactil),
+          style: TextButton.styleFrom(
+            minimumSize: TarjetaEjercicio._tamanoTactil,
+          ),
           onPressed: () => viewModel.deshacerUltimaSerie(ejercicio),
           child: const Text('Deshacer'),
         ),
@@ -159,7 +182,11 @@ class _SeriesHechas extends StatelessWidget {
 }
 
 class _Contador extends StatelessWidget {
-  const _Contador({required this.viewModel, required this.ejercicio, required this.serieActual});
+  const _Contador({
+    required this.viewModel,
+    required this.ejercicio,
+    required this.serieActual,
+  });
 
   final FuerzaViewModel viewModel;
   final Ejercicio ejercicio;
@@ -172,7 +199,9 @@ class _Contador extends StatelessWidget {
     final paso = viewModel.pasoDe(ejercicio);
     final magnitud = ejercicio.esTiempo ? 'segundos' : 'repeticiones';
     final unidad = '$magnitud${ejercicio.porLado ? ' por lado' : ''}';
-    final estiloBoton = IconButton.styleFrom(minimumSize: TarjetaEjercicio._tamanoTactil);
+    final estiloBoton = IconButton.styleFrom(
+      minimumSize: TarjetaEjercicio._tamanoTactil,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,13 +212,17 @@ class _Contador extends StatelessWidget {
         ),
         Text(
           unidad,
-          style: tema.textTheme.bodySmall?.copyWith(color: tema.colorScheme.onSurfaceVariant),
+          style: tema.textTheme.bodySmall?.copyWith(
+            color: tema.colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 4),
         Row(
           children: [
             IconButton.filledTonal(
-              tooltip: ejercicio.esTiempo ? 'Restar $paso segundos' : 'Una repetición menos',
+              tooltip: ejercicio.esTiempo
+                  ? 'Restar $paso segundos'
+                  : 'Una repetición menos',
               style: estiloBoton,
               icon: const Icon(Icons.remove),
               onPressed: () => viewModel.restarMarca(ejercicio),
@@ -207,7 +240,9 @@ class _Contador extends StatelessWidget {
               ),
             ),
             IconButton.filledTonal(
-              tooltip: ejercicio.esTiempo ? 'Sumar $paso segundos' : 'Una repetición más',
+              tooltip: ejercicio.esTiempo
+                  ? 'Sumar $paso segundos'
+                  : 'Una repetición más',
               style: estiloBoton,
               icon: const Icon(Icons.add),
               onPressed: () => viewModel.sumarMarca(ejercicio),
@@ -216,7 +251,9 @@ class _Contador extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(left: 12),
                 child: FilledButton.icon(
-                  style: FilledButton.styleFrom(minimumSize: TarjetaEjercicio._tamanoTactil),
+                  style: FilledButton.styleFrom(
+                    minimumSize: TarjetaEjercicio._tamanoTactil,
+                  ),
                   icon: const Icon(Icons.check),
                   label: const Text('Hecha'),
                   onPressed: () => viewModel.completarSerie(ejercicio),

@@ -17,33 +17,41 @@ class _ServidorFalso {
   int llamadas = 0;
 
   http.Client get cliente => MockClient((peticion) async {
-        llamadas++;
-        if (estado != 200) return http.Response('error', estado);
-        expect(peticion.headers['Authorization'], 'Bearer secreto');
-        if (peticion.method == 'PUT') {
-          final cuerpo = jsonDecode(peticion.body) as Map<String, dynamic>;
-          for (final item in cuerpo['registros'] as List) {
-            final registro = Map<String, dynamic>.from(item as Map);
-            final previo = guardados[registro['id']];
-            if (previo == null ||
-                (registro['actualizado'] as int) > (previo['actualizado'] as int)) {
-              guardados[registro['id'] as String] = registro;
-            }
-          }
-          return http.Response(jsonEncode({'aceptados': guardados.length}), 200);
+    llamadas++;
+    if (estado != 200) return http.Response('error', estado);
+    expect(peticion.headers['Authorization'], 'Bearer secreto');
+    if (peticion.method == 'PUT') {
+      final cuerpo = jsonDecode(peticion.body) as Map<String, dynamic>;
+      for (final item in cuerpo['registros'] as List) {
+        final registro = Map<String, dynamic>.from(item as Map);
+        final previo = guardados[registro['id']];
+        if (previo == null ||
+            (registro['actualizado'] as int) > (previo['actualizado'] as int)) {
+          guardados[registro['id'] as String] = registro;
         }
-        return http.Response(jsonEncode({'registros': guardados.values.toList()}), 200);
-      });
+      }
+      return http.Response(jsonEncode({'aceptados': guardados.length}), 200);
+    }
+    return http.Response(
+      jsonEncode({'registros': guardados.values.toList()}),
+      200,
+    );
+  });
 }
 
 Future<RepositorioEntrenamiento> _crear(
   _ServidorFalso servidor, {
   DateTime Function()? ahora,
 }) async {
-  final almacenamiento = ServicioAlmacenamiento(await SharedPreferences.getInstance());
+  final almacenamiento = ServicioAlmacenamiento(
+    await SharedPreferences.getInstance(),
+  );
   return RepositorioEntrenamiento(
     almacenamiento: almacenamiento,
-    api: ServicioApi(cliente: servidor.cliente, urlBase: 'https://ejemplo.test'),
+    api: ServicioApi(
+      cliente: servidor.cliente,
+      urlBase: 'https://ejemplo.test',
+    ),
     ahora: ahora,
   );
 }
@@ -56,15 +64,19 @@ Future<void> _esperarSync(RepositorioEntrenamiento repositorio) async {
 }
 
 RegistroSesion _sesion(String id, DateTime fecha) => RegistroSesion(
-      id: id,
-      fecha: fecha,
-      tipo: TipoSesion.fuerzaA,
-      semana: 1,
-      ejercicios: const [
-        RegistroEjercicio(ejercicioId: 'flexiones', nivel: 1, repeticiones: [10, 9]),
-      ],
-      sensacion: 7,
-    );
+  id: id,
+  fecha: fecha,
+  tipo: TipoSesion.fuerzaA,
+  semana: 1,
+  ejercicios: const [
+    RegistroEjercicio(
+      ejercicioId: 'flexiones',
+      nivel: 1,
+      repeticiones: [10, 9],
+    ),
+  ],
+  sensacion: 7,
+);
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -107,8 +119,12 @@ void main() {
     await repositorio.iniciar();
     await repositorio.guardarSesion(_sesion('vieja', DateTime(2026, 10, 19)));
     await repositorio.guardarSesion(_sesion('nueva', DateTime(2026, 10, 21)));
-    await repositorio.guardarMedicion(Medicion(semana: 8, fecha: DateTime(2026, 12, 14)));
-    await repositorio.guardarMedicion(Medicion(semana: 0, fecha: DateTime(2026, 10, 19)));
+    await repositorio.guardarMedicion(
+      Medicion(semana: 8, fecha: DateTime(2026, 12, 14)),
+    );
+    await repositorio.guardarMedicion(
+      Medicion(semana: 0, fecha: DateTime(2026, 10, 19)),
+    );
 
     expect(repositorio.sesiones.map((sesion) => sesion.id), ['nueva', 'vieja']);
     expect(repositorio.mediciones.map((medicion) => medicion.semana), [0, 8]);
@@ -139,12 +155,20 @@ void main() {
 
     final repositorio = await _crear(servidor);
     await repositorio.iniciar();
-    await repositorio.guardarSesion(_sesion('sesion-local', DateTime(2026, 10, 19)));
+    await repositorio.guardarSesion(
+      _sesion('sesion-local', DateTime(2026, 10, 19)),
+    );
     await repositorio.guardarCodigoSync('secreto');
 
     expect(repositorio.estadoSync, EstadoSync.ok);
-    expect(servidor.guardados.keys, containsAll(['sesion-local', 'sesion-remota']));
-    expect(repositorio.sesiones.map((sesion) => sesion.id), ['sesion-remota', 'sesion-local']);
+    expect(
+      servidor.guardados.keys,
+      containsAll(['sesion-local', 'sesion-remota']),
+    );
+    expect(repositorio.sesiones.map((sesion) => sesion.id), [
+      'sesion-remota',
+      'sesion-local',
+    ]);
     expect(repositorio.cantidadPendientes, 0);
     repositorio.dispose();
   });
@@ -176,24 +200,27 @@ void main() {
     tercero.dispose();
   });
 
-  test('si el servidor falla queda el error y lo pendiente se conserva', () async {
-    final servidor = _ServidorFalso()..estado = 500;
-    final repositorio = await _crear(servidor);
-    await repositorio.iniciar();
-    await repositorio.guardarCodigoSync('secreto');
-    await repositorio.guardarSesion(_sesion('s1', DateTime(2026, 10, 19)));
-    await _esperarSync(repositorio);
+  test(
+    'si el servidor falla queda el error y lo pendiente se conserva',
+    () async {
+      final servidor = _ServidorFalso()..estado = 500;
+      final repositorio = await _crear(servidor);
+      await repositorio.iniciar();
+      await repositorio.guardarCodigoSync('secreto');
+      await repositorio.guardarSesion(_sesion('s1', DateTime(2026, 10, 19)));
+      await _esperarSync(repositorio);
 
-    expect(repositorio.estadoSync, EstadoSync.error);
-    expect(repositorio.mensajeSync, isNotNull);
-    expect(repositorio.cantidadPendientes, 1);
+      expect(repositorio.estadoSync, EstadoSync.error);
+      expect(repositorio.mensajeSync, isNotNull);
+      expect(repositorio.cantidadPendientes, 1);
 
-    servidor.estado = 200;
-    await repositorio.sincronizar();
-    expect(repositorio.estadoSync, EstadoSync.ok);
-    expect(repositorio.cantidadPendientes, 0);
-    repositorio.dispose();
-  });
+      servidor.estado = 200;
+      await repositorio.sincronizar();
+      expect(repositorio.estadoSync, EstadoSync.ok);
+      expect(repositorio.cantidadPendientes, 0);
+      repositorio.dispose();
+    },
+  );
 
   test('un código incorrecto da un mensaje claro', () async {
     final servidor = _ServidorFalso()..estado = 401;

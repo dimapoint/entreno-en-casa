@@ -16,11 +16,15 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
       api: ServicioApi(urlBase: ''),
     );
     // Dentro de un mes: Hoy muestra la lista de antes de empezar, que no depende del día de la semana.
-    await repositorio.guardarFechaInicio(DateTime.now().add(const Duration(days: 30)));
+    await repositorio.guardarFechaInicio(
+      DateTime.now().add(const Duration(days: 30)),
+    );
   });
 
   tearDown(() => repositorio.dispose());
@@ -32,7 +36,10 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<RepositorioEntrenamiento>.value(
         value: repositorio,
-        child: MaterialApp(theme: _temaDePrueba, home: const PantallaPrincipal()),
+        child: MaterialApp(
+          theme: _temaDePrueba,
+          home: const PantallaPrincipal(),
+        ),
       ),
     );
   }
@@ -40,24 +47,35 @@ void main() {
   int pestanaActual(WidgetTester tester) =>
       tester.widget<IndexedStack>(find.byType(IndexedStack).first).index!;
 
-  Finder destino(Type contenedor, String etiqueta) =>
-      find.descendant(of: find.byType(contenedor), matching: find.text(etiqueta));
+  Finder destino(Type contenedor, String etiqueta) => find.descendant(
+    of: find.byType(contenedor),
+    matching: find.text(etiqueta),
+  );
 
-  testWidgets('en el celular usa la barra inferior y cambia de pestaña', (tester) async {
+  testWidgets('en el celular usa la barra inferior y cambia de pestaña', (
+    tester,
+  ) async {
     await abrir(tester, const Size(400, 1400));
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.byType(NavigationRail), findsNothing);
     expect(pestanaActual(tester), 0);
 
-    for (final (indice, etiqueta) in [(1, 'Progreso'), (2, 'Guía'), (3, 'Ajustes'), (0, 'Hoy')]) {
+    for (final (indice, etiqueta) in [
+      (1, 'Progreso'),
+      (2, 'Guía'),
+      (3, 'Ajustes'),
+      (0, 'Hoy'),
+    ]) {
       await tester.tap(destino(NavigationBar, etiqueta));
       await tester.pump();
       expect(pestanaActual(tester), indice, reason: etiqueta);
     }
   });
 
-  testWidgets('Hoy lleva a Progreso y las pestañas conservan su estado', (tester) async {
+  testWidgets('Hoy lleva a Progreso y las pestañas conservan su estado', (
+    tester,
+  ) async {
     await abrir(tester, const Size(400, 1400));
 
     await tester.tap(find.byType(CheckboxListTile).first);
@@ -69,22 +87,32 @@ void main() {
 
     await tester.tap(destino(NavigationBar, 'Hoy'));
     await tester.pump();
-    expect(tester.widget<CheckboxListTile>(find.byType(CheckboxListTile).first).value, isTrue);
+    expect(
+      tester
+          .widget<CheckboxListTile>(find.byType(CheckboxListTile).first)
+          .value,
+      isTrue,
+    );
   });
 
-  testWidgets('en pantallas anchas usa el riel y centra el contenido en 720 dp', (tester) async {
-    await abrir(tester, const Size(1280, 800));
+  testWidgets(
+    'en pantallas anchas usa el riel y centra el contenido en 720 dp',
+    (tester) async {
+      await abrir(tester, const Size(1280, 800));
 
-    expect(find.byType(NavigationRail), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
-    expect(tester.getSize(find.byType(IndexedStack).first).width, 720);
+      expect(find.byType(NavigationRail), findsOneWidget);
+      expect(find.byType(NavigationBar), findsNothing);
+      expect(tester.getSize(find.byType(IndexedStack).first).width, 720);
 
-    await tester.tap(destino(NavigationRail, 'Guía'));
-    await tester.pump();
-    expect(pestanaActual(tester), 2);
-  });
+      await tester.tap(destino(NavigationRail, 'Guía'));
+      await tester.pump();
+      expect(pestanaActual(tester), 2);
+    },
+  );
 
-  testWidgets('al cruzar el ancho del riel no se pierde la pestaña', (tester) async {
+  testWidgets('al cruzar el ancho del riel no se pierde la pestaña', (
+    tester,
+  ) async {
     await abrir(tester, const Size(1280, 800));
     await tester.tap(destino(NavigationRail, 'Ajustes'));
     await tester.pump();

@@ -48,7 +48,9 @@ class _EstadoPantallaFuerza extends State<PantallaFuerza> {
       context: context,
       builder: (contexto) => AlertDialog(
         title: const Text('¿Salir sin guardar?'),
-        content: const Text('Las series que cargaste se pierden si salís ahora.'),
+        content: const Text(
+          'Las series que cargaste se pierden si salís ahora.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(contexto).pop(false),
@@ -68,7 +70,9 @@ class _EstadoPantallaFuerza extends State<PantallaFuerza> {
     final mensajero = ScaffoldMessenger.of(context);
     if (!_viewModel.puedeGuardar) {
       mensajero.showSnackBar(
-        const SnackBar(content: Text('Marcá al menos una serie para guardar la sesión.')),
+        const SnackBar(
+          content: Text('Marcá al menos una serie para guardar la sesión.'),
+        ),
       );
       return;
     }
@@ -82,7 +86,9 @@ class _EstadoPantallaFuerza extends State<PantallaFuerza> {
       if (!guardada) return;
     } on Object {
       mensajero.showSnackBar(
-        const SnackBar(content: Text('No se pudo guardar la sesión. Probá de nuevo.')),
+        const SnackBar(
+          content: Text('No se pudo guardar la sesión. Probá de nuevo.'),
+        ),
       );
       return;
     }
@@ -92,79 +98,84 @@ class _EstadoPantallaFuerza extends State<PantallaFuerza> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-        listenable: _viewModel,
-        builder: (contexto, _) {
-          final descanso = _viewModel.descanso;
-          return PopScope(
-            canPop: !_viewModel.haySinGuardar,
-            onPopInvokedWithResult: (seSalio, _) {
-              if (!seSalio) unawaited(_confirmarSalida());
-            },
-            child: Scaffold(
-              appBar: AppBar(title: Text('Fuerza ${widget.rutina.letra}')),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 12,
-                  children: [
-                    _Encabezado(viewModel: _viewModel),
-                    _TarjetaDiaFlojo(viewModel: _viewModel),
-                    if (_viewModel.consejoVisible) _TarjetaConsejo(viewModel: _viewModel),
-                    SeccionTildable(
-                      key: const ValueKey('calentamiento'),
-                      titulo: 'Calentamiento (8–10 min)',
-                      lista: _viewModel.calentamiento,
-                      alAlternar: (indice) =>
-                          _viewModel.alternarItem(_viewModel.calentamiento, indice),
-                    ),
-                    for (final ejercicio in _viewModel.ejercicios)
-                      TarjetaEjercicio(
-                        key: ValueKey(ejercicio.id),
-                        viewModel: _viewModel,
-                        ejercicio: ejercicio,
-                      ),
-                    SeccionTildable(
-                      key: const ValueKey('vuelta_a_la_calma'),
-                      titulo: 'Vuelta a la calma (5 min)',
-                      nota: PlanCasa.notaVueltaALaCalma,
-                      lista: _viewModel.vueltaALaCalma,
-                      alAlternar: (indice) =>
-                          _viewModel.alternarItem(_viewModel.vueltaALaCalma, indice),
-                    ),
-                  ],
+    listenable: _viewModel,
+    builder: (contexto, _) {
+      final descanso = _viewModel.descanso;
+      return PopScope(
+        canPop: !_viewModel.haySinGuardar,
+        onPopInvokedWithResult: (seSalio, _) {
+          if (!seSalio) unawaited(_confirmarSalida());
+        },
+        child: Scaffold(
+          appBar: AppBar(title: Text('Fuerza ${widget.rutina.letra}')),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
+                _Encabezado(viewModel: _viewModel),
+                _TarjetaDiaFlojo(viewModel: _viewModel),
+                if (_viewModel.consejoVisible)
+                  _TarjetaConsejo(viewModel: _viewModel),
+                SeccionTildable(
+                  key: const ValueKey('calentamiento'),
+                  titulo: 'Calentamiento (8–10 min)',
+                  lista: _viewModel.calentamiento,
+                  alAlternar: (indice) =>
+                      _viewModel.alternarItem(_viewModel.calentamiento, indice),
                 ),
-              ),
-              bottomNavigationBar: Material(
-                elevation: 3,
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                child: SafeArea(
-                  top: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (descanso != null)
-                        BarraDescanso(
-                          controlador: descanso,
-                          alAgregarTiempo: _viewModel.agregarTiempoDeDescanso,
-                          alCerrar: _viewModel.cerrarDescanso,
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                          onPressed: _terminar,
-                          child: const Text('Terminar sesión'),
-                        ),
-                      ),
-                    ],
+                for (final ejercicio in _viewModel.ejercicios)
+                  TarjetaEjercicio(
+                    key: ValueKey(ejercicio.id),
+                    viewModel: _viewModel,
+                    ejercicio: ejercicio,
+                  ),
+                SeccionTildable(
+                  key: const ValueKey('vuelta_a_la_calma'),
+                  titulo: 'Vuelta a la calma (5 min)',
+                  nota: PlanCasa.notaVueltaALaCalma,
+                  lista: _viewModel.vueltaALaCalma,
+                  alAlternar: (indice) => _viewModel.alternarItem(
+                    _viewModel.vueltaALaCalma,
+                    indice,
                   ),
                 ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: Material(
+            elevation: 3,
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            child: SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (descanso != null)
+                    BarraDescanso(
+                      controlador: descanso,
+                      alAgregarTiempo: _viewModel.agregarTiempoDeDescanso,
+                      alCerrar: _viewModel.cerrarDescanso,
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                      onPressed: _terminar,
+                      child: const Text('Terminar sesión'),
+                    ),
+                  ),
+                ],
               ),
             ),
-          );
-        },
+          ),
+        ),
       );
+    },
+  );
 }
 
 class _Encabezado extends StatelessWidget {
@@ -186,7 +197,9 @@ class _Encabezado extends StatelessWidget {
         if (viewModel.esCicloRepetido)
           Text(
             'Ciclo repetido: esta semana toca como la ${viewModel.semanaEfectiva}.',
-            style: tema.textTheme.bodyMedium?.copyWith(color: tema.colorScheme.onSurfaceVariant),
+            style: tema.textTheme.bodyMedium?.copyWith(
+              color: tema.colorScheme.onSurfaceVariant,
+            ),
           ),
         Text(viewModel.plan.fuerzaTexto, style: tema.textTheme.bodyLarge),
       ],
@@ -201,13 +214,15 @@ class _TarjetaDiaFlojo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-        child: SwitchListTile(
-          title: const Text('Día flojo'),
-          subtitle: const Text('2 series por ejercicio y sin intentar subir repeticiones.'),
-          value: viewModel.diaFlojo,
-          onChanged: (activo) => viewModel.cambiarDiaFlojo(activo: activo),
-        ),
-      );
+    child: SwitchListTile(
+      title: const Text('Día flojo'),
+      subtitle: const Text(
+        '2 series por ejercicio y sin intentar subir repeticiones.',
+      ),
+      value: viewModel.diaFlojo,
+      onChanged: (activo) => viewModel.cambiarDiaFlojo(activo: activo),
+    ),
+  );
 }
 
 class _TarjetaConsejo extends StatelessWidget {
@@ -228,7 +243,10 @@ class _TarjetaConsejo extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: Icon(Icons.lightbulb_outline, color: colores.onSecondaryContainer),
+              child: Icon(
+                Icons.lightbulb_outline,
+                color: colores.onSecondaryContainer,
+              ),
             ),
             Expanded(
               child: Padding(

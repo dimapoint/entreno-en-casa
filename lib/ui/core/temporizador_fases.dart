@@ -26,8 +26,8 @@ class ControladorFases extends ChangeNotifier {
     DateTime Function()? ahora,
     this.alCambiarFase,
     this.alTerminar,
-  })  : assert(fases.isNotEmpty),
-        _ahora = ahora ?? DateTime.now;
+  }) : assert(fases.isNotEmpty),
+       _ahora = ahora ?? DateTime.now;
 
   final List<FaseTemporizador> fases;
   final DateTime Function() _ahora;
@@ -47,12 +47,15 @@ class ControladorFases extends ChangeNotifier {
   EstadoTemporizador get estado => _estado;
   bool get corriendo => _estado == EstadoTemporizador.corriendo;
 
-  int get duracionTotalSegundos => fases.fold(0, (total, fase) => total + fase.segundos);
+  int get duracionTotalSegundos =>
+      fases.fold(0, (total, fase) => total + fase.segundos);
 
   Duration get transcurrido {
     final tramo = _inicioTramo;
     final total = Duration(seconds: duracionTotalSegundos);
-    final valor = tramo == null ? _acumulado : _acumulado + _ahora().difference(tramo);
+    final valor = tramo == null
+        ? _acumulado
+        : _acumulado + _ahora().difference(tramo);
     return valor > total ? total : valor;
   }
 
@@ -60,10 +63,14 @@ class ControladorFases extends ChangeNotifier {
   FaseTemporizador get faseActual => fases[indiceActual];
 
   /// Segundos que faltan de la fase actual, redondeados hacia arriba.
-  int get segundosRestantes => (_posicion(transcurrido).restanteMs / 1000).ceil();
+  int get segundosRestantes =>
+      (_posicion(transcurrido).restanteMs / 1000).ceil();
 
   int get segundosRestantesTotal =>
-      ((Duration(seconds: duracionTotalSegundos) - transcurrido).inMilliseconds / 1000).ceil();
+      ((Duration(seconds: duracionTotalSegundos) - transcurrido)
+                  .inMilliseconds /
+              1000)
+          .ceil();
 
   /// De 0 a 1.
   double get progresoTotal => duracionTotalSegundos == 0
@@ -75,7 +82,9 @@ class ControladorFases extends ChangeNotifier {
     final tiempoMs = tiempo.inMilliseconds;
     for (var indice = 0; indice < fases.length; indice++) {
       final finFaseMs = inicioFaseMs + fases[indice].segundos * 1000;
-      if (tiempoMs < finFaseMs) return (indice: indice, restanteMs: finFaseMs - tiempoMs);
+      if (tiempoMs < finFaseMs) {
+        return (indice: indice, restanteMs: finFaseMs - tiempoMs);
+      }
       inicioFaseMs = finFaseMs;
     }
     return (indice: fases.length - 1, restanteMs: 0);
@@ -110,7 +119,10 @@ class ControladorFases extends ChangeNotifier {
 
   /// Salta al comienzo de la fase siguiente, o termina si ya es la última.
   void saltarFase() {
-    if (_estado == EstadoTemporizador.quieto || _estado == EstadoTemporizador.terminado) return;
+    if (_estado == EstadoTemporizador.quieto ||
+        _estado == EstadoTemporizador.terminado) {
+      return;
+    }
     var inicioSiguienteMs = 0;
     final indice = indiceActual;
     for (var posicion = 0; posicion <= indice; posicion++) {
@@ -131,7 +143,10 @@ class ControladorFases extends ChangeNotifier {
 
   /// Recalcula con el reloj. Lo llama el temporizador interno y se puede llamar a mano.
   void actualizar() {
-    if (_estado != EstadoTemporizador.corriendo && _estado != EstadoTemporizador.pausado) return;
+    if (_estado != EstadoTemporizador.corriendo &&
+        _estado != EstadoTemporizador.pausado) {
+      return;
+    }
     final total = Duration(seconds: duracionTotalSegundos);
     if (transcurrido >= total) {
       _acumulado = total;

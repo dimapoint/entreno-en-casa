@@ -22,7 +22,8 @@ void main() {
   Ejercicio ejercicioA(int orden) => PlanCasa.ejerciciosA[orden - 1];
   Ejercicio ejercicioB(int orden) => PlanCasa.ejerciciosB[orden - 1];
 
-  FuerzaViewModel crear({Rutina rutina = Rutina.a, int semana = 1}) => FuerzaViewModel(
+  FuerzaViewModel crear({Rutina rutina = Rutina.a, int semana = 1}) =>
+      FuerzaViewModel(
         repositorio: repositorio,
         rutina: rutina,
         semana: semana,
@@ -41,25 +42,30 @@ void main() {
     List<int> repeticiones, {
     bool diaFlojo = false,
     TipoSesion tipo = TipoSesion.fuerzaA,
-  }) =>
-      repositorio.guardarSesion(
-        RegistroSesion(
-          id: id,
-          fecha: fecha,
-          tipo: tipo,
-          semana: 2,
-          diaFlojo: diaFlojo,
-          ejercicios: [
-            RegistroEjercicio(ejercicioId: ejercicioId, nivel: nivel, repeticiones: repeticiones),
-          ],
+  }) => repositorio.guardarSesion(
+    RegistroSesion(
+      id: id,
+      fecha: fecha,
+      tipo: tipo,
+      semana: 2,
+      diaFlojo: diaFlojo,
+      ejercicios: [
+        RegistroEjercicio(
+          ejercicioId: ejercicioId,
+          nivel: nivel,
+          repeticiones: repeticiones,
         ),
-      );
+      ],
+    ),
+  );
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     reloj = DateTime(2026, 10, 19, 18);
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
       api: ServicioApi(
         cliente: MockClient((_) async => http.Response('{}', 200)),
         urlBase: 'https://ejemplo.test',
@@ -69,13 +75,13 @@ void main() {
     await repositorio.iniciar();
 
     vibraciones = [];
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (llamada) async {
-        if (llamada.method == 'HapticFeedback.vibrate') vibraciones.add('${llamada.arguments}');
-        return null;
-      },
-    );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (llamada) async {
+          if (llamada.method == 'HapticFeedback.vibrate') {
+            vibraciones.add('${llamada.arguments}');
+          }
+          return null;
+        });
   });
 
   tearDown(() {
@@ -89,7 +95,14 @@ void main() {
       for (final rutina in Rutina.values) {
         for (final semana in [1, 2]) {
           final viewModel = crear(rutina: rutina, semana: semana);
-          expect(seriesDelDia(viewModel), [2, 2, 2, 2, 2, 2], reason: '${rutina.letra} s$semana');
+          expect(seriesDelDia(viewModel), [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+          ], reason: '${rutina.letra} s$semana');
           viewModel.dispose();
         }
       }
@@ -98,19 +111,29 @@ void main() {
     test('semana 3: 3 series en los 3 primeros ejercicios y 2 en el resto', () {
       for (final rutina in Rutina.values) {
         final viewModel = crear(rutina: rutina, semana: 3);
-        expect(seriesDelDia(viewModel), [3, 3, 3, 2, 2, 2], reason: rutina.letra);
+        expect(seriesDelDia(viewModel), [
+          3,
+          3,
+          3,
+          2,
+          2,
+          2,
+        ], reason: rutina.letra);
         viewModel.dispose();
       }
     });
 
-    test('semana 11: 4 series en búlgara y flexiones, y la lateral sigue en 2', () {
-      final viewModelA = crear(semana: 11);
-      expect(seriesDelDia(viewModelA), [4, 4, 3, 3, 3, 2]);
-      final viewModelB = crear(rutina: Rutina.b, semana: 11);
-      expect(seriesDelDia(viewModelB), [3, 3, 3, 3, 3, 3]);
-      viewModelA.dispose();
-      viewModelB.dispose();
-    });
+    test(
+      'semana 11: 4 series en búlgara y flexiones, y la lateral sigue en 2',
+      () {
+        final viewModelA = crear(semana: 11);
+        expect(seriesDelDia(viewModelA), [4, 4, 3, 3, 3, 2]);
+        final viewModelB = crear(rutina: Rutina.b, semana: 11);
+        expect(seriesDelDia(viewModelB), [3, 3, 3, 3, 3, 3]);
+        viewModelA.dispose();
+        viewModelB.dispose();
+      },
+    );
 
     test('pasada la semana 13 se usa la semana efectiva y se avisa del ciclo repetido', () {
       final viewModel = crear(semana: 21); // la efectiva es la 12
@@ -166,17 +189,20 @@ void main() {
       viewModel.dispose();
     });
 
-    test('la marca no baja de 0 y una serie en 0 no se puede dar por hecha', () {
-      final viewModel = crear();
-      final flexiones = ejercicioA(2);
-      for (var vez = 0; vez < 20; vez++) {
-        viewModel.restarMarca(flexiones);
-      }
-      expect(viewModel.marcaDe(flexiones), 0);
-      viewModel.completarSerie(flexiones);
-      expect(viewModel.repeticionesHechas(flexiones), isEmpty);
-      viewModel.dispose();
-    });
+    test(
+      'la marca no baja de 0 y una serie en 0 no se puede dar por hecha',
+      () {
+        final viewModel = crear();
+        final flexiones = ejercicioA(2);
+        for (var vez = 0; vez < 20; vez++) {
+          viewModel.restarMarca(flexiones);
+        }
+        expect(viewModel.marcaDe(flexiones), 0);
+        viewModel.completarSerie(flexiones);
+        expect(viewModel.repeticionesHechas(flexiones), isEmpty);
+        viewModel.dispose();
+      },
+    );
 
     test('al completar las series del día no deja agregar más', () {
       final viewModel = crear(); // semana 1: 2 series
@@ -215,9 +241,21 @@ void main() {
     });
 
     test('el nivel y la última vez salen de la sesión más reciente con ese ejercicio', () async {
-      await guardarPrevia('vieja', DateTime(2026, 10, 12), 'flexiones', 1, [8, 8]);
-      await guardarPrevia('nueva', DateTime(2026, 10, 14), 'flexiones', 2, [10, 9]);
-      await guardarPrevia('otra', DateTime(2026, 10, 16), 'sentadilla_bulgara', 3, [9, 9]);
+      await guardarPrevia('vieja', DateTime(2026, 10, 12), 'flexiones', 1, [
+        8,
+        8,
+      ]);
+      await guardarPrevia('nueva', DateTime(2026, 10, 14), 'flexiones', 2, [
+        10,
+        9,
+      ]);
+      await guardarPrevia(
+        'otra',
+        DateTime(2026, 10, 16),
+        'sentadilla_bulgara',
+        3,
+        [9, 9],
+      );
 
       final viewModel = crear();
       expect(viewModel.nivelDe(ejercicioA(2)), 2);
@@ -230,49 +268,86 @@ void main() {
       viewModel.dispose();
     });
 
-    test('sugiere subir de nivel si en todas las series llegó al tope', () async {
-      // Flexiones: el tope es 15.
-      await guardarPrevia('anterior', DateTime(2026, 10, 14), 'flexiones', 1, [15, 15, 15]);
-      final viewModel = crear(semana: 4);
-      final flexiones = ejercicioA(2);
+    test(
+      'sugiere subir de nivel si en todas las series llegó al tope',
+      () async {
+        // Flexiones: el tope es 15.
+        await guardarPrevia(
+          'anterior',
+          DateTime(2026, 10, 14),
+          'flexiones',
+          1,
+          [15, 15, 15],
+        );
+        final viewModel = crear(semana: 4);
+        final flexiones = ejercicioA(2);
 
-      final sugerencia = viewModel.sugerenciaDe(flexiones)!;
-      expect(sugerencia.nivelNuevo, 2);
+        final sugerencia = viewModel.sugerenciaDe(flexiones)!;
+        expect(sugerencia.nivelNuevo, 2);
 
-      viewModel.elegirNivel(flexiones, 2);
-      expect(viewModel.sugerenciaDe(flexiones), isNull);
-      viewModel.dispose();
-    });
+        viewModel.elegirNivel(flexiones, 2);
+        expect(viewModel.sugerenciaDe(flexiones), isNull);
+        viewModel.dispose();
+      },
+    );
 
     test('no sugiere nada si alguna serie quedó por debajo del tope', () async {
-      await guardarPrevia('anterior', DateTime(2026, 10, 14), 'flexiones', 1, [15, 14, 15]);
+      await guardarPrevia('anterior', DateTime(2026, 10, 14), 'flexiones', 1, [
+        15,
+        14,
+        15,
+      ]);
       final viewModel = crear();
       expect(viewModel.sugerenciaDe(ejercicioA(2)), isNull);
       viewModel.dispose();
     });
 
     test('no sugiere nada si la sesión anterior fue un día flojo o de una sola serie', () async {
-      await guardarPrevia('floja', DateTime(2026, 10, 14), 'flexiones', 1, [15, 15], diaFlojo: true);
-      await guardarPrevia('corta', DateTime(2026, 10, 12), 'remo_mancuerna', 1, [15]);
+      await guardarPrevia('floja', DateTime(2026, 10, 14), 'flexiones', 1, [
+        15,
+        15,
+      ], diaFlojo: true);
+      await guardarPrevia(
+        'corta',
+        DateTime(2026, 10, 12),
+        'remo_mancuerna',
+        1,
+        [15],
+      );
       final viewModel = crear();
       expect(viewModel.sugerenciaDe(ejercicioA(2)), isNull);
       expect(viewModel.sugerenciaDe(ejercicioA(3)), isNull);
       viewModel.dispose();
     });
 
-    test('en el nivel 3 sugiere velocidad o peso extra, sin subir de nivel', () async {
-      await guardarPrevia('anterior', DateTime(2026, 10, 14), 'flexiones', 3, [15, 15, 15]);
-      await guardarPrevia('plancha', DateTime(2026, 10, 15), 'plancha_frontal', 3, [45, 45]);
-      final viewModel = crear();
+    test(
+      'en el nivel 3 sugiere velocidad o peso extra, sin subir de nivel',
+      () async {
+        await guardarPrevia(
+          'anterior',
+          DateTime(2026, 10, 14),
+          'flexiones',
+          3,
+          [15, 15, 15],
+        );
+        await guardarPrevia(
+          'plancha',
+          DateTime(2026, 10, 15),
+          'plancha_frontal',
+          3,
+          [45, 45],
+        );
+        final viewModel = crear();
 
-      final flexiones = viewModel.sugerenciaDe(ejercicioA(2))!;
-      expect(flexiones.nivelNuevo, isNull);
-      expect(flexiones.texto, contains('pausa'));
-      final plancha = viewModel.sugerenciaDe(ejercicioA(5))!;
-      expect(plancha.nivelNuevo, isNull);
-      expect(plancha.texto, contains('mochila'));
-      viewModel.dispose();
-    });
+        final flexiones = viewModel.sugerenciaDe(ejercicioA(2))!;
+        expect(flexiones.nivelNuevo, isNull);
+        expect(flexiones.texto, contains('pausa'));
+        final plancha = viewModel.sugerenciaDe(ejercicioA(5))!;
+        expect(plancha.nivelNuevo, isNull);
+        expect(plancha.texto, contains('mochila'));
+        viewModel.dispose();
+      },
+    );
 
     test('elegir un nivel que no existe no cambia nada', () {
       final viewModel = crear();
@@ -348,59 +423,68 @@ void main() {
       viewModel.dispose();
     });
 
-    test('el consejo se puede descartar y habla de los ejercicios de la rutina', () {
-      final viewModelA = crear();
-      final viewModelB = crear(rutina: Rutina.b);
-      expect(viewModelA.consejoVisible, isTrue);
-      expect(viewModelA.consejo, contains('búlgara'));
-      expect(viewModelB.consejo, contains('zancadas'));
+    test(
+      'el consejo se puede descartar y habla de los ejercicios de la rutina',
+      () {
+        final viewModelA = crear();
+        final viewModelB = crear(rutina: Rutina.b);
+        expect(viewModelA.consejoVisible, isTrue);
+        expect(viewModelA.consejo, contains('búlgara'));
+        expect(viewModelB.consejo, contains('zancadas'));
 
-      viewModelA.descartarConsejo();
-      expect(viewModelA.consejoVisible, isFalse);
-      viewModelA.dispose();
-      viewModelB.dispose();
-    });
+        viewModelA.descartarConsejo();
+        expect(viewModelA.consejoVisible, isFalse);
+        viewModelA.dispose();
+        viewModelB.dispose();
+      },
+    );
   });
 
   group('guardar la sesión', () {
-    test('guarda tipo, semana absoluta y solo los ejercicios con series hechas', () async {
-      final viewModel = crear(rutina: Rutina.b, semana: 24);
-      final zancadas = ejercicioB(1);
-      final fondos = ejercicioB(5);
+    test(
+      'guarda tipo, semana absoluta y solo los ejercicios con series hechas',
+      () async {
+        final viewModel = crear(rutina: Rutina.b, semana: 24);
+        final zancadas = ejercicioB(1);
+        final fondos = ejercicioB(5);
 
-      viewModel.elegirNivel(zancadas, 2);
-      viewModel.completarSerie(zancadas);
-      viewModel.sumarMarca(zancadas);
-      viewModel.sumarMarca(zancadas);
-      viewModel.completarSerie(zancadas);
-      viewModel.completarSerie(fondos);
-      viewModel.cambiarDiaFlojo(activo: true);
-      reloj = reloj.add(const Duration(minutes: 47, seconds: 30));
+        viewModel.elegirNivel(zancadas, 2);
+        viewModel.completarSerie(zancadas);
+        viewModel.sumarMarca(zancadas);
+        viewModel.sumarMarca(zancadas);
+        viewModel.completarSerie(zancadas);
+        viewModel.completarSerie(fondos);
+        viewModel.cambiarDiaFlojo(activo: true);
+        reloj = reloj.add(const Duration(minutes: 47, seconds: 30));
 
-      expect(viewModel.haySinGuardar, isTrue);
-      final guardada = await viewModel.guardarSesion(sensacion: 8, notas: '  Me costó el final  ');
-      expect(guardada, isTrue);
-      expect(viewModel.haySinGuardar, isFalse);
+        expect(viewModel.haySinGuardar, isTrue);
+        final guardada = await viewModel.guardarSesion(
+          sensacion: 8,
+          notas: '  Me costó el final  ',
+        );
+        expect(guardada, isTrue);
+        expect(viewModel.haySinGuardar, isFalse);
 
-      final sesion = repositorio.sesiones.single;
-      expect(sesion.id, startsWith('sesion-'));
-      expect(sesion.tipo, TipoSesion.fuerzaB);
-      expect(sesion.semana, 24);
-      expect(sesion.fecha, reloj);
-      expect(sesion.diaFlojo, isTrue);
-      expect(sesion.sensacion, 8);
-      expect(sesion.notas, 'Me costó el final');
-      expect(sesion.duracionMinutos, 47);
-      expect(sesion.ejercicios.map((ejercicio) => ejercicio.ejercicioId), [
-        'zancadas_atras',
-        'fondos_silla',
-      ]);
-      expect(sesion.ejercicios.first.nivel, 2);
-      expect(sesion.ejercicios.first.repeticiones, [10, 12]);
-      expect(sesion.ejercicios.last.nivel, 1);
-      expect(sesion.ejercicios.last.repeticiones, [8]);
-      viewModel.dispose();
-    });
+        final sesion = repositorio.sesiones.single;
+        expect(sesion.id, startsWith('sesion-'));
+        expect(sesion.tipo, TipoSesion.fuerzaB);
+        expect(sesion.semana, 24);
+        expect(sesion.fecha, reloj);
+        expect(sesion.diaFlojo, isTrue);
+        expect(sesion.sensacion, 8);
+        expect(sesion.notas, 'Me costó el final');
+        expect(sesion.duracionMinutos, 47);
+        expect(sesion.ejercicios.map((ejercicio) => ejercicio.ejercicioId), [
+          'zancadas_atras',
+          'fondos_silla',
+        ]);
+        expect(sesion.ejercicios.first.nivel, 2);
+        expect(sesion.ejercicios.first.repeticiones, [10, 12]);
+        expect(sesion.ejercicios.last.nivel, 1);
+        expect(sesion.ejercicios.last.repeticiones, [8]);
+        viewModel.dispose();
+      },
+    );
 
     test('la rutina A se guarda como Fuerza A', () async {
       final viewModel = crear(semana: 3);

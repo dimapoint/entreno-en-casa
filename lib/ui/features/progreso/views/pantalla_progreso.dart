@@ -19,7 +19,9 @@ class _EstadoPantallaProgreso extends State<PantallaProgreso> {
   @override
   void initState() {
     super.initState();
-    _viewModel = ProgresoViewModel(repositorio: context.read<RepositorioEntrenamiento>());
+    _viewModel = ProgresoViewModel(
+      repositorio: context.read<RepositorioEntrenamiento>(),
+    );
   }
 
   @override
@@ -30,18 +32,23 @@ class _EstadoPantallaProgreso extends State<PantallaProgreso> {
 
   @override
   Widget build(BuildContext context) => DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Progreso'),
-            bottom: const TabBar(tabs: [Tab(text: 'Mediciones'), Tab(text: 'Historial')]),
-          ),
-          body: TabBarView(
-            children: [
-              PestanaMediciones(viewModel: _viewModel),
-              PestanaHistorial(viewModel: _viewModel),
-            ],
-          ),
+    length: 2,
+    child: Scaffold(
+      appBar: AppBar(
+        title: const Text('Progreso'),
+        bottom: const TabBar(
+          tabs: [
+            Tab(text: 'Mediciones'),
+            Tab(text: 'Historial'),
+          ],
         ),
-      );
+      ),
+      body: TabBarView(
+        children: [
+          PestanaMediciones(viewModel: _viewModel),
+          PestanaHistorial(viewModel: _viewModel),
+        ],
+      ),
+    ),
+  );
 }

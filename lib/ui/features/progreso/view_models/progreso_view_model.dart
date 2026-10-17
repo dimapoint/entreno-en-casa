@@ -18,8 +18,9 @@ class DiferenciaMedicion {
 
   bool get buenaSenal => campo.bajarEsMejor ? valor < 0 : valor > 0;
 
-  String get texto =>
-      valor == 0 ? 'Igual que el día 0' : '${textoConSigno(valor)} ${campo.unidad} vs. día 0';
+  String get texto => valor == 0
+      ? 'Igual que el día 0'
+      : '${textoConSigno(valor)} ${campo.unidad} vs. día 0';
 }
 
 /// Día 0 o semana 4, 8 o 13, con lo cargado hasta ahora (puede estar vacío).
@@ -48,7 +49,9 @@ class MomentoMedicion {
   String textoDe(CampoMedicion campo) {
     final cargado = valor(campo);
     if (cargado == null) return '—';
-    final nivel = campo == CampoMedicion.flexiones ? medicion?.flexionesNivel : null;
+    final nivel = campo == CampoMedicion.flexiones
+        ? medicion?.flexionesNivel
+        : null;
     return '${textoNumero(cargado)} ${campo.unidad}${nivel == null ? '' : ' · nivel $nivel'}';
   }
 
@@ -78,7 +81,11 @@ class ResumenHistorial {
 }
 
 class LineaEjercicio {
-  const LineaEjercicio({required this.nombre, required this.nivel, required this.series});
+  const LineaEjercicio({
+    required this.nombre,
+    required this.nivel,
+    required this.series,
+  });
 
   final String nombre;
   final String nivel;
@@ -89,7 +96,7 @@ class LineaEjercicio {
 
 class ProgresoViewModel extends ChangeNotifier {
   ProgresoViewModel({required this._repositorio, DateTime Function()? ahora})
-      : _ahora = ahora ?? DateTime.now {
+    : _ahora = ahora ?? DateTime.now {
     _leer();
     _repositorio.addListener(_alCambiarRepositorio);
   }
@@ -125,7 +132,8 @@ class ProgresoViewModel extends ChangeNotifier {
           semana: semana,
           medicion: _medicionesPorSemana[semana],
           diaCero: _medicionesPorSemana[0],
-          pendiente: semana == queToca && !_medicionesPorSemana.containsKey(semana),
+          pendiente:
+              semana == queToca && !_medicionesPorSemana.containsKey(semana),
         ),
     ];
   }
@@ -136,10 +144,13 @@ class ProgresoViewModel extends ChangeNotifier {
     final inicio = _repositorio.fechaInicio;
     if (inicio == null) return null;
     final semanaDelPlan = Calendario.semanaDelPlan(inicio, _ahora());
-    return semanaDelPlan == null ? null : Calendario.medicionDeLaSemana(semanaDelPlan);
+    return semanaDelPlan == null
+        ? null
+        : Calendario.medicionDeLaSemana(semanaDelPlan);
   }
 
-  List<String> get nivelesDeFlexiones => PlanCasa.ejercicioPorId('flexiones')?.niveles ?? const [];
+  List<String> get nivelesDeFlexiones =>
+      PlanCasa.ejercicioPorId('flexiones')?.niveles ?? const [];
 
   /// [textos] trae lo escrito en cada campo; los vacíos o inválidos quedan sin cargar.
   /// Devuelve falso, sin guardar nada, si no hay ningún dato.
@@ -151,19 +162,25 @@ class ProgresoViewModel extends ChangeNotifier {
   }) async {
     final valores = {
       for (final campo in CampoMedicion.values)
-        campo: campo.validar(textos[campo]) == null ? campo.interpretar(textos[campo] ?? '') : null,
+        campo: campo.validar(textos[campo]) == null
+            ? campo.interpretar(textos[campo] ?? '')
+            : null,
     };
     if (valores.values.every((valor) => valor == null)) return false;
-    await _repositorio.guardarMedicion(Medicion(
-      semana: semana,
-      fecha: _medicionesPorSemana[semana]?.fecha ?? Calendario.soloFecha(_ahora()),
-      pesoKg: valores[CampoMedicion.peso]?.toDouble(),
-      cinturaCm: valores[CampoMedicion.cintura]?.toDouble(),
-      flexiones: valores[CampoMedicion.flexiones]?.toInt(),
-      flexionesNivel: nivelFlexiones,
-      planchaSegundos: valores[CampoMedicion.plancha]?.toInt(),
-      metros12Min: valores[CampoMedicion.prueba12Minutos]?.toInt(),
-    ));
+    await _repositorio.guardarMedicion(
+      Medicion(
+        semana: semana,
+        fecha:
+            _medicionesPorSemana[semana]?.fecha ??
+            Calendario.soloFecha(_ahora()),
+        pesoKg: valores[CampoMedicion.peso]?.toDouble(),
+        cinturaCm: valores[CampoMedicion.cintura]?.toDouble(),
+        flexiones: valores[CampoMedicion.flexiones]?.toInt(),
+        flexionesNivel: nivelFlexiones,
+        planchaSegundos: valores[CampoMedicion.plancha]?.toInt(),
+        metros12Min: valores[CampoMedicion.prueba12Minutos]?.toInt(),
+      ),
+    );
     return true;
   }
 
@@ -177,8 +194,9 @@ class ProgresoViewModel extends ChangeNotifier {
     final lunes = Calendario.lunesDe(hoy);
     return ResumenHistorial(
       sesiones: _sesiones.length,
-      sesionesEstaSemana:
-          _sesiones.where((sesion) => Calendario.lunesDe(sesion.fecha) == lunes).length,
+      sesionesEstaSemana: _sesiones
+          .where((sesion) => Calendario.lunesDe(sesion.fecha) == lunes)
+          .length,
       rachaSemanas: _rachaDeSemanas(lunes),
     );
   }
@@ -186,10 +204,14 @@ class ProgresoViewModel extends ChangeNotifier {
   int _rachaDeSemanas(DateTime lunesActual) {
     final fuerzaPorSemana = <DateTime, int>{};
     for (final sesion in _sesiones.where((sesion) => sesion.tipo.esFuerza)) {
-      fuerzaPorSemana.update(Calendario.lunesDe(sesion.fecha), (cantidad) => cantidad + 1,
-          ifAbsent: () => 1);
+      fuerzaPorSemana.update(
+        Calendario.lunesDe(sesion.fecha),
+        (cantidad) => cantidad + 1,
+        ifAbsent: () => 1,
+      );
     }
-    bool completa(DateTime lunes) => (fuerzaPorSemana[lunes] ?? 0) >= sesionesDeFuerzaPorSemana;
+    bool completa(DateTime lunes) =>
+        (fuerzaPorSemana[lunes] ?? 0) >= sesionesDeFuerzaPorSemana;
 
     var lunes = lunesActual;
     // La semana en curso todavía puede completarse, así que incompleta no corta la racha.
@@ -207,8 +229,10 @@ class ProgresoViewModel extends ChangeNotifier {
 
   String resumenDeSesion(RegistroSesion sesion) {
     if (sesion.tipo.esFuerza) {
-      final series = sesion.ejercicios
-          .fold(0, (total, ejercicio) => total + ejercicio.repeticiones.length);
+      final series = sesion.ejercicios.fold(
+        0,
+        (total, ejercicio) => total + ejercicio.repeticiones.length,
+      );
       return '${_conPlural(sesion.ejercicios.length, 'ejercicio')}, ${_conPlural(series, 'serie')}';
     }
     final minutos = sesion.duracionMinutos;
@@ -218,18 +242,22 @@ class ProgresoViewModel extends ChangeNotifier {
   static String _conPlural(int cantidad, String singular) =>
       cantidad == 1 ? '1 $singular' : '$cantidad ${singular}s';
 
-  List<LineaEjercicio> ejerciciosDe(RegistroSesion sesion) =>
-      [for (final hecho in sesion.ejercicios) _lineaDe(hecho)];
+  List<LineaEjercicio> ejerciciosDe(RegistroSesion sesion) => [
+    for (final hecho in sesion.ejercicios) _lineaDe(hecho),
+  ];
 
   LineaEjercicio _lineaDe(RegistroEjercicio hecho) {
     final ejercicio = PlanCasa.ejercicioPorId(hecho.ejercicioId);
     final niveles = ejercicio?.niveles ?? const <String>[];
-    final nombreNivel =
-        hecho.nivel >= 1 && hecho.nivel <= niveles.length ? niveles[hecho.nivel - 1] : null;
+    final nombreNivel = hecho.nivel >= 1 && hecho.nivel <= niveles.length
+        ? niveles[hecho.nivel - 1]
+        : null;
     final unidad = (ejercicio?.esTiempo ?? false) ? ' s' : '';
     return LineaEjercicio(
       nombre: ejercicio?.nombre ?? hecho.ejercicioId,
-      nivel: nombreNivel == null ? 'Nivel ${hecho.nivel}' : 'Nivel ${hecho.nivel} · $nombreNivel',
+      nivel: nombreNivel == null
+          ? 'Nivel ${hecho.nivel}'
+          : 'Nivel ${hecho.nivel} · $nombreNivel',
       series: hecho.repeticiones.isEmpty
           ? 'Sin series'
           : '${hecho.repeticiones.length} × ${hecho.repeticiones.join(', ')}$unidad',

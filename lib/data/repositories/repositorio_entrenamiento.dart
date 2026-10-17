@@ -22,6 +22,7 @@ class RepositorioEntrenamiento extends ChangeNotifier {
   }) : _ahora = ahora ?? DateTime.now;
 
   static const _idAjustes = 'ajustes';
+  static const _tamanoDeLote = 100;
 
   final ServicioAlmacenamiento _almacenamiento;
   final ServicioApi _api;
@@ -47,20 +48,28 @@ class RepositorioEntrenamiento extends ChangeNotifier {
   // --- Lectura -------------------------------------------------------------
 
   /// Más recientes primero.
-  List<RegistroSesion> get sesiones => _vivos(Registro.tipoSesion)
-      .map((registro) => RegistroSesion.deJson(registro.id, registro.datos))
-      .toList()
-    ..sort((izquierda, derecha) => derecha.fecha.compareTo(izquierda.fecha));
+  List<RegistroSesion> get sesiones =>
+      _vivos(Registro.tipoSesion)
+          .map((registro) => RegistroSesion.deJson(registro.id, registro.datos))
+          .toList()
+        ..sort(
+          (izquierda, derecha) => derecha.fecha.compareTo(izquierda.fecha),
+        );
 
   /// Ordenadas por momento: día 0, 4, 8 y 13.
-  List<Medicion> get mediciones => _vivos(Registro.tipoMedicion)
-      .map((registro) => Medicion.deJson(registro.datos))
-      .toList()
-    ..sort((izquierda, derecha) => izquierda.semana.compareTo(derecha.semana));
+  List<Medicion> get mediciones =>
+      _vivos(Registro.tipoMedicion)
+          .map((registro) => Medicion.deJson(registro.datos))
+          .toList()
+        ..sort(
+          (izquierda, derecha) => izquierda.semana.compareTo(derecha.semana),
+        );
 
   DateTime? get fechaInicio {
     final ajustes = _registros[_idAjustes];
-    final texto = ajustes == null || ajustes.borrado ? null : ajustes.datos['fechaInicio'];
+    final texto = ajustes == null || ajustes.borrado
+        ? null
+        : ajustes.datos['fechaInicio'];
     return texto is String ? DateTime.tryParse(texto) : null;
   }
 
@@ -78,7 +87,8 @@ class RepositorioEntrenamiento extends ChangeNotifier {
 
   Future<void> guardarFechaInicio(DateTime fecha) {
     final dia = Calendario.soloFecha(fecha);
-    final texto = '${dia.year.toString().padLeft(4, '0')}-'
+    final texto =
+        '${dia.year.toString().padLeft(4, '0')}-'
         '${dia.month.toString().padLeft(2, '0')}-'
         '${dia.day.toString().padLeft(2, '0')}';
     return _guardar(Registro.tipoAjustes, _idAjustes, {'fechaInicio': texto});
@@ -96,7 +106,8 @@ class RepositorioEntrenamiento extends ChangeNotifier {
   DateTime? get ultimaSync => _ultimaSync;
   String get codigoSync => _codigoSync;
   bool get sincronizacionDisponible => _api.disponible;
-  int get cantidadPendientes => _registros.values.where((registro) => registro.pendiente).length;
+  int get cantidadPendientes =>
+      _registros.values.where((registro) => registro.pendiente).length;
 
   Future<void> guardarCodigoSync(String codigo) async {
     _codigoSync = codigo.trim();
@@ -112,20 +123,27 @@ class RepositorioEntrenamiento extends ChangeNotifier {
 
   Future<void> sincronizar() async {
     if (_codigoSync.isEmpty || _estadoSync == EstadoSync.sincronizando) return;
+    // El código se fija al empezar: si cambia durante el sync, no se mezclan cuentas.
+    final codigo = _codigoSync;
     _estadoSync = EstadoSync.sincronizando;
     _mensajeSync = null;
     _avisar();
     try {
-      final enviados = _registros.values.where((registro) => registro.pendiente).toList();
-      if (enviados.isNotEmpty) await _api.enviar(_codigoSync, enviados);
-      for (final enviado in enviados) {
-        final actual = _registros[enviado.id];
-        // Si se editó mientras se enviaba, sigue pendiente.
-        if (actual != null && actual.actualizado == enviado.actualizado) {
-          _registros[enviado.id] = actual.copiarCon(pendiente: false);
-        }
+      final pendientes = _registros.values
+          .where((registro) => registro.pendiente)
+          .toList();
+      // Por lotes: el servidor rechaza pedidos grandes, y un solo rechazo bloquearía todo.
+      for (
+        var inicio = 0;
+        inicio < pendientes.length;
+        inicio += _tamanoDeLote
+      ) {
+        final fin = matematica.min(inicio + _tamanoDeLote, pendientes.length);
+        final lote = pendientes.sublist(inicio, fin);
+        await _api.enviar(codigo, lote);
+        _marcarEnviados(lote);
       }
-      for (final remoto in await _api.obtener(_codigoSync)) {
+      for (final remoto in await _api.obtener(codigo)) {
         final local = _registros[remoto.id];
         if (local == null || remoto.actualizado > local.actualizado) {
           _registros[remoto.id] = remoto;
@@ -142,51 +160,87 @@ class RepositorioEntrenamiento extends ChangeNotifier {
       _mensajeSync = 'No se pudo sincronizar.';
     }
     await _persistir();
+    if (codigo != _codigoSync) {
+      _estadoSync = EstadoSync.inactivo;
+      _mensajeSync = null;
+      _avisar();
+      if (_codigoSync.isNotEmpty) unawaited(sincronizar());
+      return;
+    }
     _avisar();
     if (_estadoSync == EstadoSync.ok && cantidadPendientes > 0) {
       unawaited(sincronizar());
     }
   }
 
+  /// Si se editó mientras se enviaba, el registro sigue pendiente.
+  void _marcarEnviados(List<Registro> lote) {
+    for (final enviado in lote) {
+      final actual = _registros[enviado.id];
+      if (actual != null && actual.actualizado == enviado.actualizado) {
+        _registros[enviado.id] = actual.copiarCon(pendiente: false);
+      }
+    }
+  }
+
   // --- Internos ------------------------------------------------------------
 
-  Iterable<Registro> _vivos(String tipo) =>
-      _registros.values.where((registro) => registro.tipo == tipo && !registro.borrado);
+  Iterable<Registro> _vivos(String tipo) => _registros.values.where(
+    (registro) => registro.tipo == tipo && !registro.borrado,
+  );
 
   Future<void> _guardar(String tipo, String id, Map<String, dynamic> datos) =>
-      _escribir(Registro(
-        id: id,
-        tipo: tipo,
-        datos: datos,
-        actualizado: _marcaDeTiempo(id),
-        pendiente: true,
-      ));
+      _escribir(
+        Registro(
+          id: id,
+          tipo: tipo,
+          datos: datos,
+          actualizado: _marcaDeTiempo(id),
+          pendiente: true,
+        ),
+      );
 
   Future<void> _borrar(String id) {
     final actual = _registros[id];
     if (actual == null || actual.borrado) return Future.value();
-    return _escribir(Registro(
-      id: id,
-      tipo: actual.tipo,
-      datos: actual.datos,
-      actualizado: _marcaDeTiempo(id),
-      borrado: true,
-      pendiente: true,
-    ));
+    return _escribir(
+      Registro(
+        id: id,
+        tipo: actual.tipo,
+        datos: actual.datos,
+        actualizado: _marcaDeTiempo(id),
+        borrado: true,
+        pendiente: true,
+      ),
+    );
   }
 
   /// Siempre mayor que la marca anterior del mismo registro, aunque se edite dos veces en el mismo milisegundo.
-  int _marcaDeTiempo(String id) =>
-      matematica.max(_ahora().millisecondsSinceEpoch, (_registros[id]?.actualizado ?? 0) + 1);
+  int _marcaDeTiempo(String id) => matematica.max(
+    _ahora().millisecondsSinceEpoch,
+    (_registros[id]?.actualizado ?? 0) + 1,
+  );
 
   Future<void> _escribir(Registro registro) async {
+    final previo = _registros[registro.id];
     _registros[registro.id] = registro;
-    await _persistir();
+    try {
+      await _persistir();
+    } on Object {
+      // Se deshace para que el reintento no deje la sesión duplicada en memoria.
+      if (previo == null) {
+        _registros.remove(registro.id);
+      } else {
+        _registros[registro.id] = previo;
+      }
+      rethrow;
+    }
     _avisar();
     unawaited(sincronizar());
   }
 
-  Future<void> _persistir() => _almacenamiento.guardarRegistros(_registros.values);
+  Future<void> _persistir() =>
+      _almacenamiento.guardarRegistros(_registros.values);
 
   void _avisar() {
     if (!_cerrado) notifyListeners();

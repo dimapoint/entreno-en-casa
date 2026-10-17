@@ -50,7 +50,8 @@ class ItemGuia {
   final String? etiqueta;
   final List<String> subitems;
 
-  String get textoPlano => [_conEtiqueta(etiqueta, texto), ...subitems].join(' ');
+  String get textoPlano =>
+      [_conEtiqueta(etiqueta, texto), ...subitems].join(' ');
 }
 
 class ListaGuia extends BloqueGuia {
@@ -64,7 +65,11 @@ class ListaGuia extends BloqueGuia {
 }
 
 class TablaGuia extends BloqueGuia {
-  const TablaGuia({required this.encabezados, required this.filas, this.filasPorSemana = false});
+  const TablaGuia({
+    required this.encabezados,
+    required this.filas,
+    this.filasPorSemana = false,
+  });
 
   /// La primera celda de cada fila es su título; los encabezados de las demás
   /// columnas rotulan el resto de la fila.
@@ -75,11 +80,16 @@ class TablaGuia extends BloqueGuia {
   final bool filasPorSemana;
 
   @override
-  String get textoPlano => [...encabezados, for (final fila in filas) ...fila].join(' ');
+  String get textoPlano =>
+      [...encabezados, for (final fila in filas) ...fila].join(' ');
 }
 
 class SeccionGuia {
-  const SeccionGuia({required this.titulo, required this.icono, required this.bloques});
+  const SeccionGuia({
+    required this.titulo,
+    required this.icono,
+    required this.bloques,
+  });
 
   final String titulo;
 
@@ -127,17 +137,25 @@ class Guia {
           'Apto físico con un clínico: llevá el análisis de octubre y preguntá si hay alguna '
           'restricción para intervalos intensos.',
         ),
-        ItemGuia('Hacé las mediciones del día 0 (sección "Cómo medir el progreso").'),
+        ItemGuia(
+          'Hacé las mediciones del día 0 (sección "Cómo medir el progreso").',
+        ),
         ItemGuia(
           'Prepará el espacio: unos 2 × 2 m libres, con piso liso para el curl femoral con toalla.',
         ),
-        ItemGuia('Probá que la mesa del remo invertido aguante tu peso (detalle en Fuerza B).'),
+        ItemGuia(
+          'Probá que la mesa del remo invertido aguante tu peso (detalle en Fuerza B).',
+        ),
       ]),
       SubtituloGuia('Material'),
       TablaGuia(
         encabezados: ['Qué', 'Para qué', '¿Lo tenés?'],
         filas: [
-          ['2 mancuernas de 5 kg', 'Búlgara, zancadas, remo, press militar', 'Sí'],
+          [
+            '2 mancuernas de 5 kg',
+            'Búlgara, zancadas, remo, press militar',
+            'Sí',
+          ],
           ['Silla firme, sin ruedas', 'Búlgara, remo, fondos', ''],
           ['Mesa maciza y pesada', 'Remo invertido', ''],
           ['Sillón o cama firme', 'Puente de glúteo', ''],
@@ -165,9 +183,17 @@ class Guia {
           ['Lunes', 'Fuerza (A o B)', '45–55 min'],
           ['Martes', 'Cardio suave', '25–45 min'],
           ['Miércoles', 'Fuerza (A o B)', '45–55 min'],
-          ['Jueves', 'Descanso activo: caminata de 30 min + 10 min de movilidad', '40 min'],
+          [
+            'Jueves',
+            'Descanso activo: caminata de 30 min + 10 min de movilidad',
+            '40 min',
+          ],
           ['Viernes', 'Fuerza (A o B)', '45–55 min'],
-          ['Sábado', 'Cardio: suave en semanas 1–4, intervalos desde la 5', '20–45 min'],
+          [
+            'Sábado',
+            'Cardio: suave en semanas 1–4, intervalos desde la 5',
+            '20–45 min',
+          ],
           ['Domingo', 'Descanso total', '—'],
         ],
       ),
@@ -199,10 +225,15 @@ class Guia {
         '(círculos de brazos, rotaciones de cadera, balanceos y gato-camello) hecha dos veces.',
       ),
       const SubtituloGuia('Calentamiento (8–10 min)'),
-      ListaGuia([for (final paso in PlanCasa.calentamiento) ItemGuia(paso)], numerada: true),
+      ListaGuia([
+        for (final paso in PlanCasa.calentamiento) ItemGuia(paso),
+      ], numerada: true),
       const SubtituloGuia('Vuelta a la calma (5 min)'),
       const ParrafoGuia(PlanCasa.notaVueltaALaCalma),
-      ListaGuia([for (final estiramiento in PlanCasa.vueltaALaCalma) ItemGuia(estiramiento)]),
+      ListaGuia([
+        for (final estiramiento in PlanCasa.vueltaALaCalma)
+          ItemGuia(estiramiento),
+      ]),
     ],
   );
 
@@ -221,33 +252,33 @@ class Guia {
         etiqueta: 'Cuánto esfuerzo por serie',
       ),
       const SubtituloGuia('La escalera, en orden'),
-      const ListaGuia(
-        [
-          ItemGuia(
-            'sumás 1–2 por sesión hasta llegar al tope del rango.',
-            etiqueta: 'Repeticiones',
-          ),
-          ItemGuia(
-            'bajada en 3–4 s y pausa de 1–2 s en la posición más difícil. Al cambiar, volvés al '
-            'piso del rango de repeticiones.',
-            etiqueta: 'Velocidad',
-          ),
-          ItemGuia(
-            'pasás al nivel siguiente de la tabla y volvés al piso del rango.',
-            etiqueta: 'Variante más difícil',
-          ),
-          ItemGuia(
-            'mochila cargada o mancuernas más pesadas (ver la última sección).',
-            etiqueta: 'Peso extra',
-          ),
-        ],
-        numerada: true,
-      ),
+      const ListaGuia([
+        ItemGuia(
+          'sumás 1–2 por sesión hasta llegar al tope del rango.',
+          etiqueta: 'Repeticiones',
+        ),
+        ItemGuia(
+          'bajada en 3–4 s y pausa de 1–2 s en la posición más difícil. Al cambiar, volvés al '
+          'piso del rango de repeticiones.',
+          etiqueta: 'Velocidad',
+        ),
+        ItemGuia(
+          'pasás al nivel siguiente de la tabla y volvés al piso del rango.',
+          etiqueta: 'Variante más difícil',
+        ),
+        ItemGuia(
+          'mochila cargada o mancuernas más pesadas (ver la última sección).',
+          etiqueta: 'Peso extra',
+        ),
+      ], numerada: true),
       const SubtituloGuia('Niveles por ejercicio'),
       TablaGuia(
         encabezados: const ['Ejercicio', 'Nivel 1', 'Nivel 2', 'Nivel 3'],
         filas: [
-          for (final ejercicio in [...PlanCasa.ejerciciosA, ...PlanCasa.ejerciciosB])
+          for (final ejercicio in [
+            ...PlanCasa.ejerciciosA,
+            ...PlanCasa.ejerciciosB,
+          ])
             [ejercicio.nombre, ...ejercicio.niveles],
         ],
       ),
@@ -274,10 +305,20 @@ class Guia {
       ),
       const SubtituloGuia('Cómo medir la intensidad'),
       const TablaGuia(
-        encabezados: ['Intensidad', 'Esfuerzo (1 a 10)', 'Prueba de la charla', 'Pulso aproximado'],
+        encabezados: [
+          'Intensidad',
+          'Esfuerzo (1 a 10)',
+          'Prueba de la charla',
+          'Pulso aproximado',
+        ],
         filas: [
           ['Suave', '4–5', 'Hablás en frases de 5–8 palabras', '115–135 lpm'],
-          ['Fuerte (intervalos)', '8', 'Solo palabras sueltas', '160 lpm o más'],
+          [
+            'Fuerte (intervalos)',
+            '8',
+            'Solo palabras sueltas',
+            '160 lpm o más',
+          ],
         ],
       ),
       const NotaGuia(
@@ -298,43 +339,39 @@ class Guia {
           'subir y bajar a ritmo constante, cambiando la pierna que sube primero cada minuto.',
           etiqueta: 'Escalera o escalón',
         ),
-        ItemGuia('Podés mezclar: por ejemplo, 10 min de soga en bloques + 20 min de caminata.'),
+        ItemGuia(
+          'Podés mezclar: por ejemplo, 10 min de soga en bloques + 20 min de caminata.',
+        ),
       ]),
       const SubtituloGuia('Si arrancás a trotar desde cero'),
-      ListaGuia(
-        [
-          ItemGuia('Semanas 1–2: ${PlanCasa.troteDesdeCero(1).texto}.'),
-          ItemGuia('Semanas 3–4: ${PlanCasa.troteDesdeCero(3).texto}.'),
-          ItemGuia('Semanas 5–6: ${PlanCasa.troteDesdeCero(5).texto}.'),
-          ItemGuia(
-            'Semanas 7–8: ${PlanCasa.troteDesdeCero(7).texto}. '
-            'Desde ahí sumás 5 min cada 2 semanas.',
-          ),
-        ],
-        numerada: true,
-      ),
+      ListaGuia([
+        ItemGuia('Semanas 1–2: ${PlanCasa.troteDesdeCero(1).texto}.'),
+        ItemGuia('Semanas 3–4: ${PlanCasa.troteDesdeCero(3).texto}.'),
+        ItemGuia('Semanas 5–6: ${PlanCasa.troteDesdeCero(5).texto}.'),
+        ItemGuia(
+          'Semanas 7–8: ${PlanCasa.troteDesdeCero(7).texto}. '
+          'Desde ahí sumás 5 min cada 2 semanas.',
+        ),
+      ], numerada: true),
       const SubtituloGuia('Sesión de intervalos (desde la semana 5)'),
-      const ListaGuia(
-        [
-          ItemGuia('5 min suaves: caminata o trote en el lugar.'),
-          ItemGuia(
-            'Vuelta de 4 ejercicios, 40 s fuerte y 20 s de pausa cada uno:',
-            subitems: [
-              'Soga rápida (o trote rápido en el lugar)',
-              'Escaladores: en posición de flexión, llevás las rodillas al pecho alternando, '
-                  'rápido',
-              'Sentadillas rápidas sin peso',
-              'Rodillas arriba trotando en el lugar',
-            ],
-          ),
-          ItemGuia(
-            '1 min de pausa caminando entre vueltas. La cantidad de vueltas depende de la '
-            'semana (ver "Las 13 semanas").',
-          ),
-          ItemGuia('5 min caminando para bajar.'),
-        ],
-        numerada: true,
-      ),
+      const ListaGuia([
+        ItemGuia('5 min suaves: caminata o trote en el lugar.'),
+        ItemGuia(
+          'Vuelta de 4 ejercicios, 40 s fuerte y 20 s de pausa cada uno:',
+          subitems: [
+            'Soga rápida (o trote rápido en el lugar)',
+            'Escaladores: en posición de flexión, llevás las rodillas al pecho alternando, '
+                'rápido',
+            'Sentadillas rápidas sin peso',
+            'Rodillas arriba trotando en el lugar',
+          ],
+        ),
+        ItemGuia(
+          '1 min de pausa caminando entre vueltas. La cantidad de vueltas depende de la '
+          'semana (ver "Las 13 semanas").',
+        ),
+        ItemGuia('5 min caminando para bajar.'),
+      ], numerada: true),
     ],
   );
 
@@ -348,7 +385,14 @@ class Guia {
         'alcanzaste.',
       ),
       TablaGuia(
-        encabezados: const ['Semana', 'Fase', 'Fuerza', 'Martes (suave)', 'Sábado', 'Hito'],
+        encabezados: const [
+          'Semana',
+          'Fase',
+          'Fuerza',
+          'Martes (suave)',
+          'Sábado',
+          'Hito',
+        ],
         filasPorSemana: true,
         filas: [
           for (final semana in PlanCasa.semanas)
@@ -398,7 +442,10 @@ class Guia {
       ),
       SubtituloGuia('Ejemplo de día (unos 120–130 g de proteína)'),
       ListaGuia([
-        ItemGuia('avena con yogur griego y fruta + 2 huevos revueltos.', etiqueta: 'Desayuno'),
+        ItemGuia(
+          'avena con yogur griego y fruta + 2 huevos revueltos.',
+          etiqueta: 'Desayuno',
+        ),
         ItemGuia(
           '150 g de pollo + arroz o papa + ensalada con aceite de oliva.',
           etiqueta: 'Almuerzo',
@@ -407,7 +454,10 @@ class Guia {
           'tostadas integrales con ricota + una fruta, o una lata de atún.',
           etiqueta: 'Merienda',
         ),
-        ItemGuia('150 g de merluza o un plato de lentejas + verduras.', etiqueta: 'Cena'),
+        ItemGuia(
+          '150 g de merluza o un plato de lentejas + verduras.',
+          etiqueta: 'Cena',
+        ),
       ]),
       SubtituloGuia('Para el colesterol'),
       ListaGuia([
@@ -421,7 +471,10 @@ class Guia {
           etiqueta: 'Menos',
         ),
       ]),
-      ParrafoGuia('2–3 L por día, un poco más los días de cardio.', etiqueta: 'Agua'),
+      ParrafoGuia(
+        '2–3 L por día, un poco más los días de cardio.',
+        etiqueta: 'Agua',
+      ),
       ParrafoGuia(
         'que alguna comida dentro de las 2 h siguientes tenga 30–40 g de proteína.',
         etiqueta: 'Después de entrenar',
@@ -456,10 +509,16 @@ class Guia {
             'Cintura (cm)',
             'Cinta métrica a la altura del ombligo, sin apretar, al final de exhalar',
           ],
-          ['Fotos', 'Frente, perfil y espalda; misma luz, misma ropa, misma distancia'],
+          [
+            'Fotos',
+            'Frente, perfil y espalda; misma luz, misma ropa, misma distancia',
+          ],
           ['Flexiones', 'Máximo seguido con buena técnica, anotando el nivel'],
           ['Plancha frontal (s)', 'Máximo con buena postura'],
-          ['Prueba de 12 min', 'Distancia caminando y trotando 12 min (con una app de mapas)'],
+          [
+            'Prueba de 12 min',
+            'Distancia caminando y trotando 12 min (con una app de mapas)',
+          ],
         ],
       ),
       ParrafoGuia(
@@ -500,8 +559,12 @@ class Guia {
       SubtituloGuia('Pará y consultá a un médico si sentís:'),
       ListaGuia([
         ItemGuia('Dolor o presión en el pecho, mareo o palpitaciones raras.'),
-        ItemGuia('Falta de aire que no corresponde al esfuerzo o que no se va al frenar.'),
-        ItemGuia('Dolor punzante en una articulación, o que dura más de 3 días.'),
+        ItemGuia(
+          'Falta de aire que no corresponde al esfuerzo o que no se va al frenar.',
+        ),
+        ItemGuia(
+          'Dolor punzante en una articulación, o que dura más de 3 días.',
+        ),
         ItemGuia('Dolor de espalda que baja por la pierna, u hormigueo.'),
       ]),
       ParrafoGuia(
@@ -515,25 +578,22 @@ class Guia {
         etiqueta: 'Cuándo sumar peso',
       ),
       SubtituloGuia('Opciones, de la más barata a la más completa'),
-      ListaGuia(
-        [
-          ItemGuia(
-            'con botellas de agua o libros. Cada botella de 1 L pesa 1 kg, así que 10 botellas '
-            'son 10 kg. Sirve para búlgara, zancadas, puente y remo.',
-            etiqueta: 'Mochila cargada',
-          ),
-          ItemGuia(
-            'cubren todos los ejercicios por años.',
-            etiqueta: 'Mancuernas ajustables hasta 20 kg cada una',
-          ),
-          ItemGuia(
-            'suma dominadas, el mejor ejercicio para la espalda, y puede reemplazar al remo '
-            'invertido.',
-            etiqueta: 'Barra de dominadas para el marco de la puerta',
-          ),
-        ],
-        numerada: true,
-      ),
+      ListaGuia([
+        ItemGuia(
+          'con botellas de agua o libros. Cada botella de 1 L pesa 1 kg, así que 10 botellas '
+          'son 10 kg. Sirve para búlgara, zancadas, puente y remo.',
+          etiqueta: 'Mochila cargada',
+        ),
+        ItemGuia(
+          'cubren todos los ejercicios por años.',
+          etiqueta: 'Mancuernas ajustables hasta 20 kg cada una',
+        ),
+        ItemGuia(
+          'suma dominadas, el mejor ejercicio para la espalda, y puede reemplazar al remo '
+          'invertido.',
+          etiqueta: 'Barra de dominadas para el marco de la puerta',
+        ),
+      ], numerada: true),
     ],
   );
 }

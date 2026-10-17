@@ -8,17 +8,21 @@ Future<void> abrirFormularioMedicion(
   BuildContext context,
   ProgresoViewModel viewModel,
   MomentoMedicion momento,
-) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (_) => FormularioMedicion(viewModel: viewModel, momento: momento),
-    );
+) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  showDragHandle: true,
+  enableDrag: false,
+  builder: (_) => FormularioMedicion(viewModel: viewModel, momento: momento),
+);
 
 class FormularioMedicion extends StatefulWidget {
-  const FormularioMedicion({super.key, required this.viewModel, required this.momento});
+  const FormularioMedicion({
+    super.key,
+    required this.viewModel,
+    required this.momento,
+  });
 
   final ProgresoViewModel viewModel;
   final MomentoMedicion momento;
@@ -65,7 +69,10 @@ class _EstadoFormularioMedicion extends State<FormularioMedicion> {
     });
     final guardado = await widget.viewModel.guardarMedicion(
       semana: widget.momento.semana,
-      textos: {for (final entrada in _controladores.entries) entrada.key: entrada.value.text},
+      textos: {
+        for (final entrada in _controladores.entries)
+          entrada.key: entrada.value.text,
+      },
       nivelFlexiones: _nivelFlexiones,
     );
     if (!mounted) return;
@@ -83,7 +90,12 @@ class _EstadoFormularioMedicion extends State<FormularioMedicion> {
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        0,
+        16,
+        16 + MediaQuery.viewInsetsOf(context).bottom,
+      ),
       child: Form(
         key: _clave,
         child: Column(
@@ -93,22 +105,29 @@ class _EstadoFormularioMedicion extends State<FormularioMedicion> {
             const SizedBox(height: 16),
             for (final entrada in _controladores.entries) ...[
               _CampoNumerico(campo: entrada.key, controlador: entrada.value),
-              if (entrada.key == CampoMedicion.flexiones) _SelectorDeNivel(
-                niveles: widget.viewModel.nivelesDeFlexiones,
-                seleccionado: _nivelFlexiones,
-                alCambiar: (nivel) => setState(() => _nivelFlexiones = nivel),
-              ),
+              if (entrada.key == CampoMedicion.flexiones)
+                _SelectorDeNivel(
+                  niveles: widget.viewModel.nivelesDeFlexiones,
+                  seleccionado: _nivelFlexiones,
+                  alCambiar: (nivel) => setState(() => _nivelFlexiones = nivel),
+                ),
               const SizedBox(height: 12),
             ],
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Text(_error!, style: TextStyle(color: tema.colorScheme.error)),
+                child: Text(
+                  _error!,
+                  style: TextStyle(color: tema.colorScheme.error),
+                ),
               ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
                 const SizedBox(width: 8),
                 FilledButton(
                   onPressed: _guardando ? null : _guardar,
@@ -131,22 +150,22 @@ class _CampoNumerico extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TextFormField(
-        controller: controlador,
-        keyboardType: TextInputType.numberWithOptions(decimal: campo.decimal),
-        textInputAction: TextInputAction.next,
-        inputFormatters: [
-          campo.decimal
-              ? FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))
-              : FilteringTextInputFormatter.digitsOnly,
-        ],
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: campo.validar,
-        decoration: InputDecoration(
-          labelText: '${campo.etiqueta} (${campo.unidad})',
-          helperText: campo.ayuda,
-          border: const OutlineInputBorder(),
-        ),
-      );
+    controller: controlador,
+    keyboardType: TextInputType.numberWithOptions(decimal: campo.decimal),
+    textInputAction: TextInputAction.next,
+    inputFormatters: [
+      campo.decimal
+          ? FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))
+          : FilteringTextInputFormatter.digitsOnly,
+    ],
+    autovalidateMode: AutovalidateMode.onUserInteraction,
+    validator: campo.validar,
+    decoration: InputDecoration(
+      labelText: '${campo.etiqueta} (${campo.unidad})',
+      helperText: campo.ayuda,
+      border: const OutlineInputBorder(),
+    ),
+  );
 }
 
 class _SelectorDeNivel extends StatelessWidget {
@@ -168,7 +187,10 @@ class _SelectorDeNivel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Nivel de las flexiones (opcional)', style: Theme.of(context).textTheme.labelLarge),
+          Text(
+            'Nivel de las flexiones (opcional)',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
           const SizedBox(height: 8),
           SegmentedButton<int>(
             emptySelectionAllowed: true,

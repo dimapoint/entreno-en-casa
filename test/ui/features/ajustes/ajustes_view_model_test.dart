@@ -10,17 +10,18 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<RepositorioEntrenamiento> _crear({String urlBase = 'https://ejemplo.test'}) async =>
-    RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
-      api: ServicioApi(
-        cliente: MockClient(
-          (_) async => http.Response(jsonEncode({'registros': <Object>[]}), 200),
-        ),
-        urlBase: urlBase,
-      ),
-      ahora: () => DateTime(2026, 10, 17, 14, 5),
-    );
+Future<RepositorioEntrenamiento> _crear({
+  String urlBase = 'https://ejemplo.test',
+}) async => RepositorioEntrenamiento(
+  almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+  api: ServicioApi(
+    cliente: MockClient(
+      (_) async => http.Response(jsonEncode({'registros': <Object>[]}), 200),
+    ),
+    urlBase: urlBase,
+  ),
+  ahora: () => DateTime(2026, 10, 17, 14, 5),
+);
 
 void main() {
   late RepositorioEntrenamiento repositorio;
@@ -41,7 +42,10 @@ void main() {
   test('guardar el código lo limpia, lo conserva y sincroniza', () async {
     await preparar();
     expect(viewModel.hayCodigo, isFalse);
-    expect(viewModel.textoDeEstado, 'Sin código: todo queda solo en este dispositivo');
+    expect(
+      viewModel.textoDeEstado,
+      'Sin código: todo queda solo en este dispositivo',
+    );
     expect(viewModel.puedeSincronizar, isFalse);
 
     await viewModel.guardarCodigo('  secreto ');
@@ -50,7 +54,10 @@ void main() {
     expect(viewModel.hayCodigo, isTrue);
     expect(viewModel.estadoSync, EstadoSync.ok);
     expect(viewModel.textoDeEstado, 'Todo sincronizado');
-    expect(viewModel.textoDeUltimaSync, 'Última sincronización: sábado 17 de octubre a las 14:05');
+    expect(
+      viewModel.textoDeUltimaSync,
+      'Última sincronización: sábado 17 de octubre a las 14:05',
+    );
     expect(viewModel.puedeSincronizar, isTrue);
   });
 
@@ -82,16 +89,19 @@ void main() {
     expect(repositorio.ultimaSync, DateTime(2026, 10, 17, 14, 5));
   });
 
-  test('guarda la fecha de inicio y arranca la semana 1 el lunes de esa semana', () async {
-    await preparar();
-    expect(viewModel.fechaInicio, isNull);
-    expect(viewModel.lunesDeInicio, isNull);
+  test(
+    'guarda la fecha de inicio y arranca la semana 1 el lunes de esa semana',
+    () async {
+      await preparar();
+      expect(viewModel.fechaInicio, isNull);
+      expect(viewModel.lunesDeInicio, isNull);
 
-    await viewModel.guardarFechaDeInicio(DateTime(2026, 10, 21));
+      await viewModel.guardarFechaDeInicio(DateTime(2026, 10, 21));
 
-    expect(viewModel.fechaInicio, DateTime(2026, 10, 21));
-    expect(viewModel.lunesDeInicio, DateTime(2026, 10, 19));
-  });
+      expect(viewModel.fechaInicio, DateTime(2026, 10, 21));
+      expect(viewModel.lunesDeInicio, DateTime(2026, 10, 19));
+    },
+  );
 
   test('cuenta los cambios pendientes de subir', () async {
     await preparar();
@@ -119,7 +129,10 @@ void main() {
 
     expect(viewModel.estadoSync, EstadoSync.error);
     expect(viewModel.textoDeEstado, 'No se pudo sincronizar');
-    expect(viewModel.mensajeSync, 'Esta versión no tiene un servidor configurado.');
+    expect(
+      viewModel.mensajeSync,
+      'Esta versión no tiene un servidor configurado.',
+    );
     expect(viewModel.puedeSincronizar, isFalse);
   });
 

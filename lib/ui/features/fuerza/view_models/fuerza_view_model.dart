@@ -65,12 +65,12 @@ class FuerzaViewModel extends ChangeNotifier {
     required this.rutina,
     required this.semana,
     DateTime Function()? ahora,
-  })  : _ahora = ahora ?? DateTime.now,
-        ejercicios = PlanCasa.ejerciciosDe(rutina),
-        semanaEfectiva = Calendario.semanaEfectiva(semana),
-        plan = Calendario.planDeLaSemana(semana),
-        calentamiento = ListaTildable(PlanCasa.calentamiento),
-        vueltaALaCalma = ListaTildable(PlanCasa.vueltaALaCalma) {
+  }) : _ahora = ahora ?? DateTime.now,
+       ejercicios = PlanCasa.ejerciciosDe(rutina),
+       semanaEfectiva = Calendario.semanaEfectiva(semana),
+       plan = Calendario.planDeLaSemana(semana),
+       calentamiento = ListaTildable(PlanCasa.calentamiento),
+       vueltaALaCalma = ListaTildable(PlanCasa.vueltaALaCalma) {
     _inicio = _ahora();
     _cargarAnteriores();
     for (final ejercicio in ejercicios) {
@@ -158,9 +158,11 @@ class FuerzaViewModel extends ChangeNotifier {
   /// Las planchas suben de a 5 segundos para no tocar el botón 30 veces.
   int pasoDe(Ejercicio ejercicio) => ejercicio.esTiempo ? 5 : 1;
 
-  void sumarMarca(Ejercicio ejercicio) => _moverMarca(ejercicio, pasoDe(ejercicio));
+  void sumarMarca(Ejercicio ejercicio) =>
+      _moverMarca(ejercicio, pasoDe(ejercicio));
 
-  void restarMarca(Ejercicio ejercicio) => _moverMarca(ejercicio, -pasoDe(ejercicio));
+  void restarMarca(Ejercicio ejercicio) =>
+      _moverMarca(ejercicio, -pasoDe(ejercicio));
 
   void _moverMarca(Ejercicio ejercicio, int diferencia) {
     final progreso = _progresoDe(ejercicio);
@@ -217,15 +219,19 @@ class FuerzaViewModel extends ChangeNotifier {
   Sugerencia? sugerenciaDe(Ejercicio ejercicio) {
     final anterior = _anteriores[ejercicio.id];
     if (anterior == null || anterior.diaFlojo) return null;
-    final llegoAlTope = anterior.repeticiones.length >= _seriesMinimasParaProgresar &&
-        anterior.repeticiones.every((repeticiones) => repeticiones >= ejercicio.repsMaximas);
+    final llegoAlTope =
+        anterior.repeticiones.length >= _seriesMinimasParaProgresar &&
+        anterior.repeticiones.every(
+          (repeticiones) => repeticiones >= ejercicio.repsMaximas,
+        );
     if (!llegoAlTope) return null;
 
     if (anterior.nivel < ejercicio.niveles.length) {
       if (nivelDe(ejercicio) > anterior.nivel) return null;
       final nivelNuevo = anterior.nivel + 1;
       return Sugerencia(
-        texto: 'La última vez llegaste al tope en todas las series. '
+        texto:
+            'La última vez llegaste al tope en todas las series. '
             'Si la técnica fue prolija, pasá al nivel $nivelNuevo y volvé al piso del rango.',
         nivelNuevo: nivelNuevo,
       );
@@ -234,7 +240,7 @@ class FuerzaViewModel extends ChangeNotifier {
       texto: ejercicio.esTiempo
           ? 'Llegaste al tope en el nivel más difícil. Sumá peso extra con la mochila.'
           : 'Llegaste al tope en el nivel más difícil. Probá bajar en 3–4 s con pausa de 1–2 s, '
-              'o sumá peso extra.',
+                'o sumá peso extra.',
     );
   }
 
@@ -245,7 +251,13 @@ class FuerzaViewModel extends ChangeNotifier {
   void _arrancarDescanso(int segundos) {
     _descanso?.dispose();
     _descanso = ControladorFases(
-      [FaseTemporizador(titulo: 'Descanso', segundos: segundos, esDescanso: true)],
+      [
+        FaseTemporizador(
+          titulo: 'Descanso',
+          segundos: segundos,
+          esDescanso: true,
+        ),
+      ],
       ahora: _ahora,
       alTerminar: HapticFeedback.heavyImpact,
     )..iniciar();
@@ -274,13 +286,17 @@ class FuerzaViewModel extends ChangeNotifier {
 
   // --- Guardado ------------------------------------------------------------
 
-  bool get puedeGuardar => _progresos.values.any((progreso) => progreso.hechas.isNotEmpty);
+  bool get puedeGuardar =>
+      _progresos.values.any((progreso) => progreso.hechas.isNotEmpty);
 
   bool get haySinGuardar => !_guardada && puedeGuardar;
 
   /// Guarda la sesión con los ejercicios que tienen al menos una serie hecha.
   /// Devuelve falso si no hay nada para guardar o si ya se guardó.
-  Future<bool> guardarSesion({required int sensacion, String notas = ''}) async {
+  Future<bool> guardarSesion({
+    required int sensacion,
+    String notas = '',
+  }) async {
     assert(sensacion >= 1 && sensacion <= 10);
     if (!puedeGuardar || _guardada || _guardando) return false;
     _guardando = true;

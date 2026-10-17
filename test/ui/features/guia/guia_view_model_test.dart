@@ -11,7 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Sin código de sincronización el repositorio no toca la red.
 Future<RepositorioEntrenamiento> _crearRepositorio() async {
   final repositorio = RepositorioEntrenamiento(
-    almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+    almacenamiento: ServicioAlmacenamiento(
+      await SharedPreferences.getInstance(),
+    ),
     api: ServicioApi(
       cliente: MockClient((_) async => http.Response('{}', 200)),
       urlBase: 'https://ejemplo.test',
@@ -70,7 +72,9 @@ void main() {
     test('la proteína solo aparece en la sección de alimentación', () {
       for (final consulta in ['proteina', 'PROTEÍNA', 'Proteína']) {
         viewModel.buscar(consulta);
-        expect(_titulos(viewModel), ['Alimentación, sueño y recuperación'], reason: consulta);
+        expect(_titulos(viewModel), [
+          'Alimentación, sueño y recuperación',
+        ], reason: consulta);
       }
     });
 
@@ -146,17 +150,22 @@ void main() {
       expect(viewModel.semanaResaltada, 6);
     });
 
-    test('si cambia la fecha de inicio en el repositorio, avisa a la vista', () async {
-      var avisos = 0;
-      viewModel.addListener(() => avisos++);
-      await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
-      expect(avisos, greaterThan(0));
-      expect(viewModel.semanaActual, 1);
-    });
+    test(
+      'si cambia la fecha de inicio en el repositorio, avisa a la vista',
+      () async {
+        var avisos = 0;
+        viewModel.addListener(() => avisos++);
+        await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
+        expect(avisos, greaterThan(0));
+        expect(viewModel.semanaActual, 1);
+      },
+    );
   });
 
   group('contenido del PDF', () {
-    final texto = Guia.secciones.map((seccion) => seccion.textoPlano).join('\n');
+    final texto = Guia.secciones
+        .map((seccion) => seccion.textoPlano)
+        .join('\n');
 
     test('cada cifra clave está en los datos', () {
       const cifras = [
@@ -200,16 +209,25 @@ void main() {
           .whereType<TablaGuia>()
           .toList();
       final semanas = tablas.singleWhere((tabla) => tabla.filasPorSemana);
-      final niveles = tablas.singleWhere((tabla) => tabla.encabezados.first == 'Ejercicio');
+      final niveles = tablas.singleWhere(
+        (tabla) => tabla.encabezados.first == 'Ejercicio',
+      );
       expect(semanas.filas, hasLength(13));
       expect(semanas.filas.first.first, 'Semana 1');
       expect(semanas.filas.last.first, 'Semana 13');
       expect(niveles.filas, hasLength(12));
-      expect(niveles.filas.every((fila) => fila.length == niveles.encabezados.length), isTrue);
+      expect(
+        niveles.filas.every(
+          (fila) => fila.length == niveles.encabezados.length,
+        ),
+        isTrue,
+      );
     });
 
     test('toda fila de toda tabla tiene una celda por encabezado', () {
-      final tablas = Guia.secciones.expand((seccion) => seccion.bloques).whereType<TablaGuia>();
+      final tablas = Guia.secciones
+          .expand((seccion) => seccion.bloques)
+          .whereType<TablaGuia>();
       for (final tabla in tablas) {
         for (final fila in tabla.filas) {
           expect(fila, hasLength(tabla.encabezados.length), reason: fila.first);

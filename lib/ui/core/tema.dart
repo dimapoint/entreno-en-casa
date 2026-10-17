@@ -10,9 +10,9 @@ class Tema {
   static ThemeData oscuro() => _construir(Brightness.dark);
 
   static ThemeData _construir(Brightness brillo) => ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: _semilla, brightness: brillo),
-        visualDensity: VisualDensity.standard,
-        cardTheme: const CardThemeData(margin: EdgeInsets.zero),
-      );
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(seedColor: _semilla, brightness: brillo),
+    visualDensity: VisualDensity.standard,
+    cardTheme: const CardThemeData(margin: EdgeInsets.zero),
+  );
 }

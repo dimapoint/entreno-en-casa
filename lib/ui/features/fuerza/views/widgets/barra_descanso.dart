@@ -34,12 +34,16 @@ class BarraDescanso extends StatelessWidget {
                 spacing: 12,
                 children: [
                   Icon(
-                    terminado ? Icons.check_circle_outline : Icons.timer_outlined,
+                    terminado
+                        ? Icons.check_circle_outline
+                        : Icons.timer_outlined,
                     color: colores.onSecondaryContainer,
                   ),
                   Expanded(
                     child: Semantics(
-                      label: terminado ? 'Terminó el descanso' : 'Descanso, quedan $tiempo',
+                      label: terminado
+                          ? 'Terminó el descanso'
+                          : 'Descanso, quedan $tiempo',
                       excludeSemantics: true,
                       child: Text(
                         terminado ? 'Terminó el descanso' : 'Descanso $tiempo',

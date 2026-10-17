@@ -8,17 +8,20 @@ Future<void> abrirDetalleSesion(
   BuildContext context,
   ProgresoViewModel viewModel,
   RegistroSesion sesion,
-) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (_) => DetalleSesion(viewModel: viewModel, sesion: sesion),
-    );
+) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  showDragHandle: true,
+  builder: (_) => DetalleSesion(viewModel: viewModel, sesion: sesion),
+);
 
 class DetalleSesion extends StatelessWidget {
-  const DetalleSesion({super.key, required this.viewModel, required this.sesion});
+  const DetalleSesion({
+    super.key,
+    required this.viewModel,
+    required this.sesion,
+  });
 
   final ProgresoViewModel viewModel;
   final RegistroSesion sesion;
@@ -63,14 +66,17 @@ class DetalleSesion extends StatelessWidget {
           Text(sesion.tipo.etiqueta, style: tema.textTheme.headlineSmall),
           Text(
             '${conPrimeraMayuscula(fechaLarga(sesion.fecha))} · Semana ${sesion.semana}',
-            style: tema.textTheme.bodyMedium?.copyWith(color: tema.colorScheme.onSurfaceVariant),
+            style: tema.textTheme.bodyMedium?.copyWith(
+              color: tema.colorScheme.onSurfaceVariant,
+            ),
           ),
           if (sensacion != null || minutos != null) ...[
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               children: [
-                if (sensacion != null) Chip(label: Text('Sensación $sensacion/10')),
+                if (sensacion != null)
+                  Chip(label: Text('Sensación $sensacion/10')),
                 if (minutos != null) Chip(label: Text('$minutos min')),
               ],
             ),
@@ -87,7 +93,10 @@ class DetalleSesion extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(ejercicio.nombre, style: tema.textTheme.titleSmall),
+                          Text(
+                            ejercicio.nombre,
+                            style: tema.textTheme.titleSmall,
+                          ),
                           Text(
                             ejercicio.nivel,
                             style: tema.textTheme.bodySmall?.copyWith(
@@ -116,7 +125,9 @@ class DetalleSesion extends StatelessWidget {
             onPressed: () => _confirmarBorrado(context),
             icon: const Icon(Icons.delete_outline),
             label: const Text('Borrar sesión'),
-            style: TextButton.styleFrom(foregroundColor: tema.colorScheme.error),
+            style: TextButton.styleFrom(
+              foregroundColor: tema.colorScheme.error,
+            ),
           ),
         ],
       ),

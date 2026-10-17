@@ -37,10 +37,10 @@ class SemanaPlan {
   final String? hito;
 
   String get sabadoTexto => switch (tipoSabado) {
-        TipoSabado.suave => '$sabadoMinutos min suave',
-        TipoSabado.intervalos => 'Intervalos, $sabadoVueltas vueltas',
-        TipoSabado.caminata => 'Caminata de $sabadoMinutos min',
-      };
+    TipoSabado.suave => '$sabadoMinutos min suave',
+    TipoSabado.intervalos => 'Intervalos, $sabadoVueltas vueltas',
+    TipoSabado.caminata => 'Caminata de $sabadoMinutos min',
+  };
 }
 
 /// Bloque de trote para quien arranca desde cero: [vueltas] veces

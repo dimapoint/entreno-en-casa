@@ -1,0 +1,17 @@
+{
+  "name": "entreno-en-casa-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "bunx --bun tsc --noEmit",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261016.1",
+    "@types/bun": "^1.4.3",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.151.1"
+  }
+}

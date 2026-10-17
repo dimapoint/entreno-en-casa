@@ -16,9 +16,13 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
       // Sin código de sincronización no se hace ninguna llamada.
-      api: ServicioApi(cliente: MockClient((_) async => http.Response('', 500))),
+      api: ServicioApi(
+        cliente: MockClient((_) async => http.Response('', 500)),
+      ),
     );
     addTearDown(repositorio.dispose);
   });
@@ -45,7 +49,11 @@ void main() {
                 child: FilledButton(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
-                      builder: (_) => PantallaCardio(tipo: tipo, semana: semana, minutos: minutos),
+                      builder: (_) => PantallaCardio(
+                        tipo: tipo,
+                        semana: semana,
+                        minutos: minutos,
+                      ),
                     ),
                   ),
                   child: const Text('Abrir'),
@@ -62,47 +70,62 @@ void main() {
 
   /// El temporizador mide con el reloj real: hace falta que pase tiempo de verdad.
   Future<void> dejarPasarTiempoReal(WidgetTester tester) async {
-    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
     await tester.pump();
   }
 
-  testWidgets('muestra la sesión antes de arrancar y arranca, pausa y reanuda', (tester) async {
-    await abrir(tester);
+  testWidgets(
+    'muestra la sesión antes de arrancar y arranca, pausa y reanuda',
+    (tester) async {
+      await abrir(tester);
 
-    expect(find.text('Listo para arrancar'), findsOneWidget);
-    expect(find.text('Entrada en calor'), findsOneWidget);
-    expect(find.text('05:00'), findsOneWidget);
-    expect(find.text('Así es la sesión (24 min)'), findsOneWidget);
-    expect(find.text('Guardar lo hecho'), findsNothing);
+      expect(find.text('Listo para arrancar'), findsOneWidget);
+      expect(find.text('Entrada en calor'), findsOneWidget);
+      expect(find.text('05:00'), findsOneWidget);
+      expect(find.text('Así es la sesión (24 min)'), findsOneWidget);
+      expect(find.text('Guardar lo hecho'), findsNothing);
 
-    await tester.tap(find.text('Iniciar'));
-    await tester.pump();
-    expect(find.text('En marcha'), findsOneWidget);
-    expect(find.text('Pausar'), findsOneWidget);
-    expect(find.text('Así es la sesión (24 min)'), findsNothing);
+      await tester.tap(find.text('Iniciar'));
+      await tester.pump();
+      expect(find.text('En marcha'), findsOneWidget);
+      expect(find.text('Pausar'), findsOneWidget);
+      expect(find.text('Así es la sesión (24 min)'), findsNothing);
 
-    await tester.tap(find.text('Pausar'));
-    await tester.pump();
-    expect(find.text('Reanudar'), findsOneWidget);
+      await tester.tap(find.text('Pausar'));
+      await tester.pump();
+      expect(find.text('Reanudar'), findsOneWidget);
 
-    await tester.tap(find.text('Saltar fase'));
-    await tester.pump();
-    expect(find.text('Soga rápida o trote rápido en el lugar'), findsOneWidget);
+      await tester.tap(find.text('Saltar fase'));
+      await tester.pump();
+      expect(
+        find.text('Soga rápida o trote rápido en el lugar'),
+        findsOneWidget,
+      );
 
-    await tester.tap(find.text('Reiniciar'));
-    await tester.pump();
-    expect(find.text('Listo para arrancar'), findsOneWidget);
+      await tester.tap(find.text('Reiniciar'));
+      await tester.pumpAndSettle();
+      expect(find.text('¿Reiniciar la sesión?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(TextButton, 'Reiniciar'));
+      await tester.pump();
+      expect(find.text('Listo para arrancar'), findsOneWidget);
 
-    await tester.pumpWidget(const SizedBox());
-  });
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 
-  testWidgets('avisa que el plan arranca los intervalos en la semana 5', (tester) async {
+  testWidgets('avisa que el plan arranca los intervalos en la semana 5', (
+    tester,
+  ) async {
     await abrir(tester, semana: 2);
     expect(find.textContaining('semana 5'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('el interruptor de trote desde cero cambia la sesión', (tester) async {
+  testWidgets('el interruptor de trote desde cero cambia la sesión', (
+    tester,
+  ) async {
     await abrir(tester, tipo: TipoSesion.cardioSuave, semana: 1, minutos: 25);
     expect(find.text('Así es la sesión (25 min)'), findsOneWidget);
     expect(find.text('Opciones para el cardio suave'), findsOneWidget);
@@ -116,7 +139,9 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('el descanso activo muestra los pasos de movilidad', (tester) async {
+  testWidgets('el descanso activo muestra los pasos de movilidad', (
+    tester,
+  ) async {
     await abrir(tester, tipo: TipoSesion.descansoActivo, semana: 4);
     expect(find.text('Movilidad, paso a paso'), findsOneWidget);
     expect(find.textContaining('Gato-camello'), findsOneWidget);
@@ -130,7 +155,9 @@ void main() {
     expect(find.byType(PantallaCardio), findsNothing);
   });
 
-  testWidgets('con la sesión en marcha pide confirmar antes de salir', (tester) async {
+  testWidgets('con la sesión en marcha pide confirmar antes de salir', (
+    tester,
+  ) async {
     await abrir(tester);
     await tester.tap(find.text('Iniciar'));
     await dejarPasarTiempoReal(tester);
@@ -151,7 +178,9 @@ void main() {
     expect(repositorio.sesiones, isEmpty);
   });
 
-  testWidgets('guardar lo hecho pide la sensación, guarda y cierra', (tester) async {
+  testWidgets('guardar lo hecho pide la sensación, guarda y cierra', (
+    tester,
+  ) async {
     await abrir(tester);
     await tester.tap(find.text('Iniciar'));
     await dejarPasarTiempoReal(tester);
@@ -174,7 +203,9 @@ void main() {
     expect(sesion.notas, 'Buena vuelta');
   });
 
-  testWidgets('cancelar el formulario no guarda y deja la sesión en pausa', (tester) async {
+  testWidgets('cancelar el formulario no guarda y deja la sesión en pausa', (
+    tester,
+  ) async {
     await abrir(tester);
     await tester.tap(find.text('Iniciar'));
     await dejarPasarTiempoReal(tester);

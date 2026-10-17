@@ -21,7 +21,8 @@ class AjustesViewModel extends ChangeNotifier {
     return fecha == null ? null : Calendario.lunesDe(fecha);
   }
 
-  Future<void> guardarFechaDeInicio(DateTime fecha) => _repositorio.guardarFechaInicio(fecha);
+  Future<void> guardarFechaDeInicio(DateTime fecha) =>
+      _repositorio.guardarFechaInicio(fecha);
 
   // --- Sincronización ------------------------------------------------------
 
@@ -37,21 +38,25 @@ class AjustesViewModel extends ChangeNotifier {
   String? get mensajeSync => _repositorio.mensajeSync;
 
   bool get puedeSincronizar =>
-      sincronizacionDisponible && hayCodigo && estadoSync != EstadoSync.sincronizando;
+      sincronizacionDisponible &&
+      hayCodigo &&
+      estadoSync != EstadoSync.sincronizando;
 
   String get textoDeEstado => switch (estadoSync) {
-        EstadoSync.inactivo =>
-          hayCodigo ? 'Listo para sincronizar' : 'Sin código: todo queda solo en este dispositivo',
-        EstadoSync.sincronizando => 'Sincronizando...',
-        EstadoSync.ok => 'Todo sincronizado',
-        EstadoSync.error => 'No se pudo sincronizar',
-      };
+    EstadoSync.inactivo =>
+      hayCodigo
+          ? 'Listo para sincronizar'
+          : 'Sin código: todo queda solo en este dispositivo',
+    EstadoSync.sincronizando => 'Sincronizando...',
+    EstadoSync.ok => 'Todo sincronizado',
+    EstadoSync.error => 'No se pudo sincronizar',
+  };
 
   String get textoDePendientes => switch (_repositorio.cantidadPendientes) {
-        0 => 'Nada pendiente de subir',
-        1 => '1 cambio pendiente de subir',
-        final cantidad => '$cantidad cambios pendientes de subir',
-      };
+    0 => 'Nada pendiente de subir',
+    1 => '1 cambio pendiente de subir',
+    final cantidad => '$cantidad cambios pendientes de subir',
+  };
 
   String get textoDeUltimaSync {
     final fecha = _repositorio.ultimaSync;
@@ -62,7 +67,8 @@ class AjustesViewModel extends ChangeNotifier {
   }
 
   /// Un código vacío equivale a quitarlo.
-  Future<void> guardarCodigo(String codigo) => _repositorio.guardarCodigoSync(codigo);
+  Future<void> guardarCodigo(String codigo) =>
+      _repositorio.guardarCodigoSync(codigo);
 
   Future<void> quitarCodigo() => _repositorio.guardarCodigoSync('');
 

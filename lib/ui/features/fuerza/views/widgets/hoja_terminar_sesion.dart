@@ -33,7 +33,12 @@ class _EstadoHojaTerminarSesion extends State<_HojaTerminarSesion> {
     final tema = Theme.of(context);
     final sensacion = _sensacion;
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        0,
+        16,
+        16 + MediaQuery.viewInsetsOf(context).bottom,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 12,
@@ -41,7 +46,9 @@ class _EstadoHojaTerminarSesion extends State<_HojaTerminarSesion> {
           Text('¿Cómo te sentiste?', style: tema.textTheme.titleLarge),
           Text(
             '1 es muy mal y 10 es excelente.',
-            style: tema.textTheme.bodyMedium?.copyWith(color: tema.colorScheme.onSurfaceVariant),
+            style: tema.textTheme.bodyMedium?.copyWith(
+              color: tema.colorScheme.onSurfaceVariant,
+            ),
           ),
           Wrap(
             spacing: 8,
@@ -67,10 +74,14 @@ class _EstadoHojaTerminarSesion extends State<_HojaTerminarSesion> {
             ),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
             onPressed: sensacion == null
                 ? null
-                : () => Navigator.of(context).pop((sensacion: sensacion, notas: _notas.text)),
+                : () =>
+                      Navigator.of(context)
+                          .pop((sensacion: sensacion, notas: _notas.text)),
             child: const Text('Guardar sesión'),
           ),
         ],

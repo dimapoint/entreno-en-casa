@@ -11,7 +11,12 @@ import '../view_models/cardio_view_model.dart';
 import 'formulario_guardado.dart';
 
 class PantallaCardio extends StatefulWidget {
-  const PantallaCardio({super.key, required this.tipo, required this.semana, this.minutos});
+  const PantallaCardio({
+    super.key,
+    required this.tipo,
+    required this.semana,
+    this.minutos,
+  });
 
   /// cardioSuave, intervalos o descansoActivo.
   final TipoSesion tipo;
@@ -53,11 +58,52 @@ class _EstadoPantallaCardio extends State<PantallaCardio> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (_) => FormularioGuardado(minutos: _viewModel.duracionRealMinutos),
+      enableDrag: false,
+      builder: (_) =>
+          FormularioGuardado(minutos: _viewModel.duracionRealMinutos),
     );
     if (datos == null) return;
-    final guardada = await _viewModel.guardar(sensacion: datos.sensacion, notas: datos.notas);
-    if (guardada && mounted) Navigator.of(context).pop();
+    try {
+      final guardada = await _viewModel.guardar(
+        sensacion: datos.sensacion,
+        notas: datos.notas,
+      );
+      if (guardada && mounted) Navigator.of(context).pop();
+    } on Object {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo guardar. Probá de nuevo.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmarReinicio() async {
+    final controlador = _viewModel.controlador;
+    if (controlador.transcurrido == Duration.zero) {
+      controlador.reiniciar();
+      return;
+    }
+    final reiniciar = await showDialog<bool>(
+      context: context,
+      builder: (contextoDialogo) => AlertDialog(
+        title: const Text('¿Reiniciar la sesión?'),
+        content: const Text(
+          'Se borra el tiempo que llevás en esta sesión. Lo ya guardado no se toca.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(contextoDialogo).pop(false),
+            child: const Text('Seguir'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(contextoDialogo).pop(true),
+            child: const Text('Reiniciar'),
+          ),
+        ],
+      ),
+    );
+    if (reiniciar == true) controlador.reiniciar();
   }
 
   Future<void> _confirmarSalida() async {
@@ -65,7 +111,9 @@ class _EstadoPantallaCardio extends State<PantallaCardio> {
       context: context,
       builder: (contextoDialogo) => AlertDialog(
         title: const Text('¿Salir sin guardar?'),
-        content: const Text('Si salís ahora, perdés lo que llevás de esta sesión.'),
+        content: const Text(
+          'Si salís ahora, perdés lo que llevás de esta sesión.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(contextoDialogo).pop(false),
@@ -83,37 +131,41 @@ class _EstadoPantallaCardio extends State<PantallaCardio> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-        listenable: _viewModel,
-        builder: (context, _) {
-          final controlador = _viewModel.controlador;
-          final aviso = _viewModel.aviso;
-          return PopScope(
-            canPop: !_viewModel.puedeGuardar,
-            onPopInvokedWithResult: (salio, _) {
-              if (!salio) unawaited(_confirmarSalida());
-            },
-            child: Scaffold(
-              appBar: AppBar(title: Text(widget.tipo.etiqueta)),
-              body: SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 16,
-                    children: [
-                      if (aviso != null) _Aviso(texto: aviso),
-                      _TarjetaTemporizador(controlador: controlador),
-                      _Controles(viewModel: _viewModel, alGuardar: _guardar),
-                      if (controlador.estado == EstadoTemporizador.quieto)
-                        _VistaPrevia(viewModel: _viewModel),
-                    ],
+    listenable: _viewModel,
+    builder: (context, _) {
+      final controlador = _viewModel.controlador;
+      final aviso = _viewModel.aviso;
+      return PopScope(
+        canPop: !_viewModel.puedeGuardar,
+        onPopInvokedWithResult: (salio, _) {
+          if (!salio) unawaited(_confirmarSalida());
+        },
+        child: Scaffold(
+          appBar: AppBar(title: Text(widget.tipo.etiqueta)),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: [
+                  if (aviso != null) _Aviso(texto: aviso),
+                  _TarjetaTemporizador(controlador: controlador),
+                  _Controles(
+                    viewModel: _viewModel,
+                    alGuardar: _guardar,
+                    alReiniciar: _confirmarReinicio,
                   ),
-                ),
+                  if (controlador.estado == EstadoTemporizador.quieto)
+                    _VistaPrevia(viewModel: _viewModel),
+                ],
               ),
             ),
-          );
-        },
+          ),
+        ),
       );
+    },
+  );
 }
 
 class _Aviso extends StatelessWidget {
@@ -134,7 +186,10 @@ class _Aviso extends StatelessWidget {
           children: [
             Icon(Icons.info_outline, color: esquema.onTertiaryContainer),
             Expanded(
-              child: Text(texto, style: TextStyle(color: esquema.onTertiaryContainer)),
+              child: Text(
+                texto,
+                style: TextStyle(color: esquema.onTertiaryContainer),
+              ),
             ),
           ],
         ),
@@ -178,13 +233,17 @@ class _TarjetaTemporizador extends StatelessWidget {
                 EstadoTemporizador.terminado => 'Sesión completa',
               },
               textAlign: TextAlign.center,
-              style: estilos.labelLarge?.copyWith(color: esquema.onSurfaceVariant),
+              style: estilos.labelLarge?.copyWith(
+                color: esquema.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               terminado ? '¡Terminaste!' : fase.titulo,
               textAlign: TextAlign.center,
-              style: estilos.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+              style: estilos.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             FittedBox(
               fit: BoxFit.scaleDown,
@@ -193,12 +252,18 @@ class _TarjetaTemporizador extends StatelessWidget {
                 style: estilos.displayLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   fontFeatures: cifrasFijas,
-                  color: fase.esDescanso && !terminado ? esquema.tertiary : esquema.primary,
+                  color: fase.esDescanso && !terminado
+                      ? esquema.tertiary
+                      : esquema.primary,
                 ),
               ),
             ),
             if (detalle != null)
-              Text(detalle, textAlign: TextAlign.center, style: estilos.bodyLarge),
+              Text(
+                detalle,
+                textAlign: TextAlign.center,
+                style: estilos.bodyLarge,
+              ),
             const SizedBox(height: 20),
             LinearProgressIndicator(
               value: controlador.progresoTotal,
@@ -210,10 +275,17 @@ class _TarjetaTemporizador extends StatelessWidget {
             Row(
               spacing: 12,
               children: [
-                Expanded(child: Text('Tiempo total restante', style: estilos.bodyMedium)),
+                Expanded(
+                  child: Text(
+                    'Tiempo total restante',
+                    style: estilos.bodyMedium,
+                  ),
+                ),
                 Text(
                   minutosYSegundos(controlador.segundosRestantesTotal),
-                  style: estilos.titleMedium?.copyWith(fontFeatures: cifrasFijas),
+                  style: estilos.titleMedium?.copyWith(
+                    fontFeatures: cifrasFijas,
+                  ),
                 ),
               ],
             ),
@@ -222,7 +294,9 @@ class _TarjetaTemporizador extends StatelessWidget {
               Text(
                 'Sigue: ${siguiente.titulo} (${minutosYSegundos(siguiente.segundos)})',
                 textAlign: TextAlign.center,
-                style: estilos.bodyMedium?.copyWith(color: esquema.onSurfaceVariant),
+                style: estilos.bodyMedium?.copyWith(
+                  color: esquema.onSurfaceVariant,
+                ),
               ),
             ],
           ],
@@ -233,10 +307,15 @@ class _TarjetaTemporizador extends StatelessWidget {
 }
 
 class _Controles extends StatelessWidget {
-  const _Controles({required this.viewModel, required this.alGuardar});
+  const _Controles({
+    required this.viewModel,
+    required this.alGuardar,
+    required this.alReiniciar,
+  });
 
   final CardioViewModel viewModel;
   final VoidCallback alGuardar;
+  final VoidCallback alReiniciar;
 
   @override
   Widget build(BuildContext context) {
@@ -245,8 +324,12 @@ class _Controles extends StatelessWidget {
     final terminado = estado == EstadoTemporizador.terminado;
     final quieto = estado == EstadoTemporizador.quieto;
     final enMarcha = estado == EstadoTemporizador.corriendo;
-    final estiloPrincipal = FilledButton.styleFrom(minimumSize: const Size.fromHeight(56));
-    final estiloSecundario = OutlinedButton.styleFrom(minimumSize: const Size(0, 48));
+    final estiloPrincipal = FilledButton.styleFrom(
+      minimumSize: const Size.fromHeight(56),
+    );
+    final estiloSecundario = OutlinedButton.styleFrom(
+      minimumSize: const Size(0, 48),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -265,13 +348,11 @@ class _Controles extends StatelessWidget {
             // iniciar() también reanuda una pausa.
             onPressed: enMarcha ? controlador.pausar : controlador.iniciar,
             icon: Icon(enMarcha ? Icons.pause : Icons.play_arrow),
-            label: Text(
-              switch (estado) {
-                EstadoTemporizador.corriendo => 'Pausar',
-                EstadoTemporizador.pausado => 'Reanudar',
-                _ => 'Iniciar',
-              },
-            ),
+            label: Text(switch (estado) {
+              EstadoTemporizador.corriendo => 'Pausar',
+              EstadoTemporizador.pausado => 'Reanudar',
+              _ => 'Iniciar',
+            }),
           ),
         Row(
           spacing: 12,
@@ -287,7 +368,7 @@ class _Controles extends StatelessWidget {
             Expanded(
               child: OutlinedButton.icon(
                 style: estiloSecundario,
-                onPressed: quieto ? null : controlador.reiniciar,
+                onPressed: quieto ? null : alReiniciar,
                 icon: const Icon(Icons.restart_alt),
                 label: const Text('Reiniciar'),
               ),
@@ -324,14 +405,18 @@ class _VistaPrevia extends StatelessWidget {
           Card(
             child: SwitchListTile(
               title: const Text('Estoy arrancando a trotar desde cero'),
-              subtitle: const Text('Alternás trote y caminata según tu semana del plan.'),
+              subtitle: const Text(
+                'Alternás trote y caminata según tu semana del plan.',
+              ),
               value: viewModel.desdeCero,
               onChanged: viewModel.cambiarDesdeCero,
             ),
           ),
         _Seccion(
           titulo: 'Así es la sesión ($minutos min)',
-          hijos: [for (final linea in viewModel.estructura) _Punto(texto: linea)],
+          hijos: [
+            for (final linea in viewModel.estructura) _Punto(texto: linea),
+          ],
         ),
         if (pasos.isNotEmpty)
           _Seccion(
@@ -342,7 +427,8 @@ class _VistaPrevia extends StatelessWidget {
           _Seccion(
             titulo: 'Opciones para el cardio suave',
             hijos: [
-              for (final opcion in opciones) _Punto(destacado: opcion.titulo, texto: opcion.texto),
+              for (final opcion in opciones)
+                _Punto(destacado: opcion.titulo, texto: opcion.texto),
             ],
           ),
       ],
@@ -358,18 +444,18 @@ class _Seccion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 8,
-            children: [
-              Text(titulo, style: Theme.of(context).textTheme.titleMedium),
-              ...hijos,
-            ],
-          ),
-        ),
-      );
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Text(titulo, style: Theme.of(context).textTheme.titleMedium),
+          ...hijos,
+        ],
+      ),
+    ),
+  );
 }
 
 class _Punto extends StatelessWidget {
@@ -380,24 +466,24 @@ class _Punto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          const Text('•'),
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  if (destacado != null)
-                    TextSpan(
-                      text: '$destacado: ',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  TextSpan(text: texto),
-                ],
-              ),
-            ),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 8,
+    children: [
+      const Text('•'),
+      Expanded(
+        child: Text.rich(
+          TextSpan(
+            children: [
+              if (destacado != null)
+                TextSpan(
+                  text: '$destacado: ',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              TextSpan(text: texto),
+            ],
           ),
-        ],
-      );
+        ),
+      ),
+    ],
+  );
 }

@@ -22,7 +22,9 @@ class _EstadoPantallaAjustes extends State<PantallaAjustes> {
   @override
   void initState() {
     super.initState();
-    _viewModel = AjustesViewModel(repositorio: context.read<RepositorioEntrenamiento>());
+    _viewModel = AjustesViewModel(
+      repositorio: context.read<RepositorioEntrenamiento>(),
+    );
     _codigo = TextEditingController(text: _viewModel.codigoGuardado);
   }
 
@@ -44,7 +46,8 @@ class _EstadoPantallaAjustes extends State<PantallaAjustes> {
     if (elegida != null) await _viewModel.guardarFechaDeInicio(elegida);
   }
 
-  Future<void> _guardarCodigo() => _aplicarCodigo(_codigo.text, 'Código guardado');
+  Future<void> _guardarCodigo() =>
+      _aplicarCodigo(_codigo.text, 'Código guardado');
 
   Future<void> _quitarCodigo() {
     _codigo.clear();
@@ -60,30 +63,34 @@ class _EstadoPantallaAjustes extends State<PantallaAjustes> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Ajustes')),
-        body: ListenableBuilder(
-          listenable: _viewModel,
-          builder: (context, _) => SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 12,
-              children: [
-                _SeccionFechaDeInicio(viewModel: _viewModel, alElegir: _elegirFechaDeInicio),
-                _SeccionSincronizacion(
-                  viewModel: _viewModel,
-                  codigo: _codigo,
-                  codigoVisible: _codigoVisible,
-                  alAlternarVisibilidad: () => setState(() => _codigoVisible = !_codigoVisible),
-                  alGuardar: _guardarCodigo,
-                  alQuitar: _quitarCodigo,
-                ),
-                const _SeccionAcercaDe(),
-              ],
+    appBar: AppBar(title: const Text('Ajustes')),
+    body: ListenableBuilder(
+      listenable: _viewModel,
+      builder: (context, _) => SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 12,
+          children: [
+            _SeccionFechaDeInicio(
+              viewModel: _viewModel,
+              alElegir: _elegirFechaDeInicio,
             ),
-          ),
+            _SeccionSincronizacion(
+              viewModel: _viewModel,
+              codigo: _codigo,
+              codigoVisible: _codigoVisible,
+              alAlternarVisibilidad: () =>
+                  setState(() => _codigoVisible = !_codigoVisible),
+              alGuardar: _guardarCodigo,
+              alQuitar: _quitarCodigo,
+            ),
+            const _SeccionAcercaDe(),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _Seccion extends StatelessWidget {
@@ -94,22 +101,25 @@ class _Seccion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card.outlined(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              Text(titulo, style: Theme.of(context).textTheme.titleMedium),
-              ...hijos,
-            ],
-          ),
-        ),
-      );
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 12,
+        children: [
+          Text(titulo, style: Theme.of(context).textTheme.titleMedium),
+          ...hijos,
+        ],
+      ),
+    ),
+  );
 }
 
 class _SeccionFechaDeInicio extends StatelessWidget {
-  const _SeccionFechaDeInicio({required this.viewModel, required this.alElegir});
+  const _SeccionFechaDeInicio({
+    required this.viewModel,
+    required this.alElegir,
+  });
 
   final AjustesViewModel viewModel;
   final VoidCallback alElegir;
@@ -122,7 +132,9 @@ class _SeccionFechaDeInicio extends StatelessWidget {
       titulo: 'Fecha de inicio',
       hijos: [
         Text(
-          fecha == null ? 'Todavía no elegiste una fecha.' : conPrimeraMayuscula(fechaLarga(fecha)),
+          fecha == null
+              ? 'Todavía no elegiste una fecha.'
+              : conPrimeraMayuscula(fechaLarga(fecha)),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         Text(
@@ -184,7 +196,9 @@ class _SeccionSincronizacion extends StatelessWidget {
             suffixIcon: IconButton(
               tooltip: codigoVisible ? 'Ocultar código' : 'Mostrar código',
               onPressed: alAlternarVisibilidad,
-              icon: Icon(codigoVisible ? Icons.visibility_off : Icons.visibility),
+              icon: Icon(
+                codigoVisible ? Icons.visibility_off : Icons.visibility,
+              ),
             ),
           ),
         ),
@@ -195,7 +209,9 @@ class _SeccionSincronizacion extends StatelessWidget {
               child: ListenableBuilder(
                 listenable: codigo,
                 builder: (context, _) => FilledButton(
-                  style: FilledButton.styleFrom(minimumSize: _tamanoMinimoDeBoton),
+                  style: FilledButton.styleFrom(
+                    minimumSize: _tamanoMinimoDeBoton,
+                  ),
                   onPressed: codigo.text.trim().isEmpty ? null : alGuardar,
                   child: const Text('Guardar'),
                 ),
@@ -203,7 +219,9 @@ class _SeccionSincronizacion extends StatelessWidget {
             ),
             Expanded(
               child: OutlinedButton(
-                style: OutlinedButton.styleFrom(minimumSize: _tamanoMinimoDeBoton),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: _tamanoMinimoDeBoton,
+                ),
                 onPressed: viewModel.hayCodigo ? alQuitar : null,
                 child: const Text('Quitar código'),
               ),
@@ -222,14 +240,19 @@ class _SeccionSincronizacion extends StatelessWidget {
                 EstadoSync.ok => Icons.cloud_done_outlined,
                 EstadoSync.error => Icons.error_outline,
               },
-              color: viewModel.estadoSync == EstadoSync.error ? tema.colorScheme.error : null,
+              color: viewModel.estadoSync == EstadoSync.error
+                  ? tema.colorScheme.error
+                  : null,
             ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4,
                 children: [
-                  Text(viewModel.textoDeEstado, style: tema.textTheme.titleSmall),
+                  Text(
+                    viewModel.textoDeEstado,
+                    style: tema.textTheme.titleSmall,
+                  ),
                   if (viewModel.mensajeSync case final mensaje?) Text(mensaje),
                   Text(viewModel.textoDeUltimaSync),
                   Text(viewModel.textoDePendientes),
@@ -240,11 +263,16 @@ class _SeccionSincronizacion extends StatelessWidget {
         ),
         FilledButton.tonalIcon(
           style: FilledButton.styleFrom(minimumSize: _tamanoMinimoDeBoton),
-          onPressed: viewModel.puedeSincronizar ? viewModel.sincronizarAhora : null,
+          onPressed: viewModel.puedeSincronizar
+              ? viewModel.sincronizarAhora
+              : null,
           icon: sincronizando
               ? const SizedBox.square(
                   dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, semanticsLabel: 'Sincronizando'),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    semanticsLabel: 'Sincronizando',
+                  ),
                 )
               : const Icon(Icons.sync),
           label: const Text('Sincronizar ahora'),
@@ -259,12 +287,12 @@ class _SeccionAcercaDe extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const _Seccion(
-        titulo: 'Acerca de',
-        hijos: [
-          Text('Entreno en casa: plan de entrenamiento en casa de 13 semanas.'),
-          Text(
-            'Aviso médico: esta app no reemplaza la opinión de un profesional. Antes de arrancar hacete un apto físico con un clínico y preguntale si tenés alguna restricción para los intervalos intensos. Si algo te duele o te sentís mal, frená.',
-          ),
-        ],
-      );
+    titulo: 'Acerca de',
+    hijos: [
+      Text('Entreno en casa: plan de entrenamiento en casa de 13 semanas.'),
+      Text(
+        'Aviso médico: esta app no reemplaza la opinión de un profesional. Antes de arrancar hacete un apto físico con un clínico y preguntale si tenés alguna restricción para los intervalos intensos. Si algo te duele o te sentís mal, frená.',
+      ),
+    ],
+  );
 }

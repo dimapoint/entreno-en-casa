@@ -24,23 +24,23 @@ class AplicacionEntreno extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (_) {
-          final repositorio = RepositorioEntrenamiento(
-            almacenamiento: almacenamiento,
-            api: api ?? ServicioApi(),
-          );
-          unawaited(repositorio.iniciar());
-          return repositorio;
-        },
-        child: MaterialApp(
-          title: 'Entreno en casa',
-          debugShowCheckedModeBanner: false,
-          theme: Tema.claro(),
-          darkTheme: Tema.oscuro(),
-          locale: const Locale('es', 'AR'),
-          supportedLocales: const [Locale('es', 'AR'), Locale('es')],
-          localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          home: const PantallaPrincipal(),
-        ),
+    create: (_) {
+      final repositorio = RepositorioEntrenamiento(
+        almacenamiento: almacenamiento,
+        api: api ?? ServicioApi(),
       );
+      unawaited(repositorio.iniciar());
+      return repositorio;
+    },
+    child: MaterialApp(
+      title: 'Entreno en casa',
+      debugShowCheckedModeBanner: false,
+      theme: Tema.claro(),
+      darkTheme: Tema.oscuro(),
+      locale: const Locale('es', 'AR'),
+      supportedLocales: const [Locale('es', 'AR'), Locale('es')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      home: const PantallaPrincipal(),
+    ),
+  );
 }

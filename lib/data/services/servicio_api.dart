@@ -18,8 +18,8 @@ class ErrorApi implements Exception {
 /// Cliente del Worker: `GET` y `PUT` sobre `/api/registros` con el código como token.
 class ServicioApi {
   ServicioApi({http.Client? cliente, String? urlBase})
-      : _cliente = cliente ?? http.Client(),
-        _urlBase = urlBase ?? const String.fromEnvironment('API_URL');
+    : _cliente = cliente ?? http.Client(),
+      _urlBase = urlBase ?? const String.fromEnvironment('API_URL');
 
   final http.Client _cliente;
   final String _urlBase;
@@ -36,16 +36,20 @@ class ServicioApi {
   }
 
   Map<String, String> _cabeceras(String codigo) => {
-        'Authorization': 'Bearer $codigo',
-        'Content-Type': 'application/json',
-      };
+    'Authorization': 'Bearer $codigo',
+    'Content-Type': 'application/json',
+  };
 
   Future<List<Registro>> obtener(String codigo) async {
-    final respuesta = await _pedir(() => _cliente.get(_direccion, headers: _cabeceras(codigo)));
+    final respuesta = await _pedir(
+      () => _cliente.get(_direccion, headers: _cabeceras(codigo)),
+    );
     try {
       final cuerpo = jsonDecode(respuesta.body) as Map<String, dynamic>;
       return (cuerpo['registros'] as List)
-          .map((item) => Registro.deJson(Map<String, dynamic>.from(item as Map)))
+          .map(
+            (item) => Registro.deJson(Map<String, dynamic>.from(item as Map)),
+          )
           .toList();
     } on Object {
       throw const ErrorApi('El servidor respondió algo que no se entiende.');
@@ -56,10 +60,14 @@ class ServicioApi {
     final cuerpo = jsonEncode({
       'registros': registros.map((registro) => registro.aJsonRemoto()).toList(),
     });
-    await _pedir(() => _cliente.put(_direccion, headers: _cabeceras(codigo), body: cuerpo));
+    await _pedir(
+      () => _cliente.put(_direccion, headers: _cabeceras(codigo), body: cuerpo),
+    );
   }
 
-  Future<http.Response> _pedir(Future<http.Response> Function() peticion) async {
+  Future<http.Response> _pedir(
+    Future<http.Response> Function() peticion,
+  ) async {
     final http.Response respuesta;
     try {
       respuesta = await peticion().timeout(_tiempoMaximo);
@@ -74,7 +82,9 @@ class ServicioApi {
       throw const ErrorApi('El código de sincronización no es correcto.');
     }
     if (respuesta.statusCode < 200 || respuesta.statusCode >= 300) {
-      throw ErrorApi('El servidor respondió con error ${respuesta.statusCode}.');
+      throw ErrorApi(
+        'El servidor respondió con error ${respuesta.statusCode}.',
+      );
     }
     return respuesta;
   }

@@ -34,7 +34,9 @@ class _EstadoPantallaGuia extends State<PantallaGuia> {
   @override
   void initState() {
     super.initState();
-    _viewModel = GuiaViewModel(repositorio: context.read<RepositorioEntrenamiento>());
+    _viewModel = GuiaViewModel(
+      repositorio: context.read<RepositorioEntrenamiento>(),
+    );
   }
 
   @override
@@ -51,41 +53,41 @@ class _EstadoPantallaGuia extends State<PantallaGuia> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Guía')),
-        body: SafeArea(
-          top: false,
-          child: ListenableBuilder(
-            listenable: _viewModel,
-            builder: (context, _) => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _AvisoMedico(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                  child: TextField(
-                    controller: _controladorBusqueda,
-                    onChanged: _viewModel.buscar,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      labelText: 'Buscar en la guía',
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _viewModel.buscando
-                          ? IconButton(
-                              tooltip: 'Borrar búsqueda',
-                              icon: const Icon(Icons.close),
-                              onPressed: _borrarBusqueda,
-                            )
-                          : null,
-                    ),
-                  ),
+    appBar: AppBar(title: const Text('Guía')),
+    body: SafeArea(
+      top: false,
+      child: ListenableBuilder(
+        listenable: _viewModel,
+        builder: (context, _) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const _AvisoMedico(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: TextField(
+                controller: _controladorBusqueda,
+                onChanged: _viewModel.buscar,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  labelText: 'Buscar en la guía',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _viewModel.buscando
+                      ? IconButton(
+                          tooltip: 'Borrar búsqueda',
+                          icon: const Icon(Icons.close),
+                          onPressed: _borrarBusqueda,
+                        )
+                      : null,
                 ),
-                Expanded(child: _ListaSecciones(viewModel: _viewModel)),
-              ],
+              ),
             ),
-          ),
+            Expanded(child: _ListaSecciones(viewModel: _viewModel)),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _AvisoMedico extends StatelessWidget {
@@ -99,15 +101,17 @@ class _AvisoMedico extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          Icon(Icons.medical_services_outlined, size: 20, color: esquema.onSecondaryContainer),
+          Icon(
+            Icons.medical_services_outlined,
+            size: 20,
+            color: esquema.onSecondaryContainer,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               'La app no reemplaza la consulta médica. Antes de arrancar, pedile el apto físico '
               'a un clínico.',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
+              style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: esquema.onSecondaryContainer),
             ),
           ),
@@ -159,29 +163,32 @@ class _SeccionVista extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card.outlined(
-        clipBehavior: Clip.antiAlias,
-        child: ExpansionTile(
-          // Al empezar o terminar una búsqueda se recrea para abrir o cerrar las secciones.
-          key: ValueKey('${seccion.titulo}-${viewModel.buscando}'),
-          initiallyExpanded: viewModel.buscando,
-          leading: Icon(_iconos[seccion.icono]),
-          title: Text(seccion.titulo, style: Theme.of(context).textTheme.titleMedium),
-          shape: const Border(),
-          collapsedShape: const Border(),
-          childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+    clipBehavior: Clip.antiAlias,
+    child: ExpansionTile(
+      // Al empezar o terminar una búsqueda se recrea para abrir o cerrar las secciones.
+      key: ValueKey('${seccion.titulo}-${viewModel.buscando}'),
+      initiallyExpanded: viewModel.buscando,
+      leading: Icon(_iconos[seccion.icono]),
+      title: Text(
+        seccion.titulo,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      shape: const Border(),
+      collapsedShape: const Border(),
+      childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 12,
-              children: [
-                for (final bloque in seccion.bloques)
-                  _BloqueVista(bloque: bloque, viewModel: viewModel),
-              ],
-            ),
+            for (final bloque in seccion.bloques)
+              _BloqueVista(bloque: bloque, viewModel: viewModel),
           ],
         ),
-      );
+      ],
+    ),
+  );
 }
 
 class _BloqueVista extends StatelessWidget {
@@ -192,19 +199,24 @@ class _BloqueVista extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (bloque) {
-        SubtituloGuia(:final texto) => Semantics(
-            header: true,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(texto, style: Theme.of(context).textTheme.titleSmall),
-            ),
-          ),
-        ParrafoGuia(:final texto, :final etiqueta) =>
-          _TextoConEtiqueta(texto: texto, etiqueta: etiqueta),
-        NotaGuia(:final texto, :final etiqueta) => _Nota(texto: texto, etiqueta: etiqueta),
-        final ListaGuia lista => _Lista(lista: lista),
-        final TablaGuia tabla => _Tabla(tabla: tabla, viewModel: viewModel),
-      };
+    SubtituloGuia(:final texto) => Semantics(
+      header: true,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Text(texto, style: Theme.of(context).textTheme.titleSmall),
+      ),
+    ),
+    ParrafoGuia(:final texto, :final etiqueta) => _TextoConEtiqueta(
+      texto: texto,
+      etiqueta: etiqueta,
+    ),
+    NotaGuia(:final texto, :final etiqueta) => _Nota(
+      texto: texto,
+      etiqueta: etiqueta,
+    ),
+    final ListaGuia lista => _Lista(lista: lista),
+    final TablaGuia tabla => _Tabla(tabla: tabla, viewModel: viewModel),
+  };
 }
 
 class _TextoConEtiqueta extends StatelessWidget {
@@ -216,15 +228,18 @@ class _TextoConEtiqueta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text.rich(
-        TextSpan(
-          style: _estiloCuerpo(context)?.copyWith(color: color),
-          children: [
-            if (etiqueta != null)
-              TextSpan(text: '$etiqueta: ', style: const TextStyle(fontWeight: FontWeight.w700)),
-            TextSpan(text: texto),
-          ],
-        ),
-      );
+    TextSpan(
+      style: _estiloCuerpo(context)?.copyWith(color: color),
+      children: [
+        if (etiqueta != null)
+          TextSpan(
+            text: '$etiqueta: ',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        TextSpan(text: texto),
+      ],
+    ),
+  );
 }
 
 class _Nota extends StatelessWidget {
@@ -259,12 +274,12 @@ class _FilaConMarcador extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(width: 24, child: Text(marcador, style: _estiloCuerpo(context))),
-          Expanded(child: hijo),
-        ],
-      );
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SizedBox(width: 24, child: Text(marcador, style: _estiloCuerpo(context))),
+      Expanded(child: hijo),
+    ],
+  );
 }
 
 class _Lista extends StatelessWidget {
@@ -274,24 +289,27 @@ class _Lista extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 6,
-        children: [
-          for (final (indice, item) in lista.items.indexed)
-            _FilaConMarcador(
-              marcador: lista.numerada ? '${indice + 1}.' : '•',
-              hijo: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 4,
-                children: [
-                  _TextoConEtiqueta(texto: item.texto, etiqueta: item.etiqueta),
-                  for (final subitem in item.subitems)
-                    _FilaConMarcador(marcador: '–', hijo: _TextoConEtiqueta(texto: subitem)),
-                ],
-              ),
-            ),
-        ],
-      );
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 6,
+    children: [
+      for (final (indice, item) in lista.items.indexed)
+        _FilaConMarcador(
+          marcador: lista.numerada ? '${indice + 1}.' : '•',
+          hijo: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 4,
+            children: [
+              _TextoConEtiqueta(texto: item.texto, etiqueta: item.etiqueta),
+              for (final subitem in item.subitems)
+                _FilaConMarcador(
+                  marcador: '–',
+                  hijo: _TextoConEtiqueta(texto: subitem),
+                ),
+            ],
+          ),
+        ),
+    ],
+  );
 }
 
 /// Cada fila de la tabla se lee como un renglón con título y datos rotulados,
@@ -306,7 +324,8 @@ class _Tabla extends StatelessWidget {
   Widget build(BuildContext context) {
     final semanaActual = viewModel.semanaActual;
     final semanaResaltada = viewModel.semanaResaltada;
-    final resalta = tabla.filasPorSemana && semanaActual != null && semanaResaltada != null;
+    final resalta =
+        tabla.filasPorSemana && semanaActual != null && semanaResaltada != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -317,7 +336,8 @@ class _Tabla extends StatelessWidget {
               semanaActual == semanaResaltada
                   ? 'Estás en la semana $semanaActual.'
                   : 'Vas por la semana $semanaActual, que repite la $semanaResaltada del plan.',
-              style: _estiloCuerpo(context)?.copyWith(fontWeight: FontWeight.w700),
+              style: _estiloCuerpo(context)
+                  ?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
         for (final (indice, fila) in tabla.filas.indexed)
@@ -332,7 +352,11 @@ class _Tabla extends StatelessWidget {
 }
 
 class _FilaTabla extends StatelessWidget {
-  const _FilaTabla({required this.encabezados, required this.fila, required this.resaltada});
+  const _FilaTabla({
+    required this.encabezados,
+    required this.fila,
+    required this.resaltada,
+  });
 
   final List<String> encabezados;
   final List<String> fila;
@@ -342,8 +366,12 @@ class _FilaTabla extends StatelessWidget {
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
     final esquema = tema.colorScheme;
-    final colorTexto = resaltada ? esquema.onPrimaryContainer : esquema.onSurface;
-    final colorRotulo = resaltada ? esquema.onPrimaryContainer : esquema.onSurfaceVariant;
+    final colorTexto = resaltada
+        ? esquema.onPrimaryContainer
+        : esquema.onSurface;
+    final colorRotulo = resaltada
+        ? esquema.onPrimaryContainer
+        : esquema.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -357,7 +385,10 @@ class _FilaTabla extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(fila.first, style: tema.textTheme.titleSmall?.copyWith(color: colorTexto)),
+                child: Text(
+                  fila.first,
+                  style: tema.textTheme.titleSmall?.copyWith(color: colorTexto),
+                ),
               ),
               if (resaltada)
                 Text(

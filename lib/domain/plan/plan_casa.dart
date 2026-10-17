@@ -153,7 +153,11 @@ class PlanCasa {
       descansoSegundos: 45,
       descansoTexto: '45 s',
       esTiempo: true,
-      niveles: ['Rodillas apoyadas', 'Antebrazos y pies', 'Pies sobre la silla'],
+      niveles: [
+        'Rodillas apoyadas',
+        'Antebrazos y pies',
+        'Pies sobre la silla',
+      ],
       notas: [
         NotaTecnica(
           'Posición',
@@ -182,7 +186,11 @@ class PlanCasa {
       esTiempo: true,
       porLado: true,
       seriesTope: 2,
-      niveles: ['Rodillas apoyadas', 'Pies apilados', 'Levantando la pierna de arriba'],
+      niveles: [
+        'Rodillas apoyadas',
+        'Pies apilados',
+        'Levantando la pierna de arriba',
+      ],
       notas: [
         NotaTecnica(
           'Posición',
@@ -246,7 +254,11 @@ class PlanCasa {
       repsMaximas: 15,
       descansoSegundos: 90,
       descansoTexto: '60–90 s',
-      niveles: ['Dos brazos a la vez', 'Un brazo por vez', 'Bajada en 4 s + pausa abajo'],
+      niveles: [
+        'Dos brazos a la vez',
+        'Un brazo por vez',
+        'Bajada en 4 s + pausa abajo',
+      ],
       notas: [
         NotaTecnica(
           'Posición',
@@ -272,7 +284,11 @@ class PlanCasa {
       repsMaximas: 12,
       descansoSegundos: 90,
       descansoTexto: '90 s',
-      niveles: ['Rodillas dobladas, pies cerca', 'Piernas estiradas', 'Pies sobre una silla'],
+      niveles: [
+        'Rodillas dobladas, pies cerca',
+        'Piernas estiradas',
+        'Pies sobre una silla',
+      ],
       notas: [
         NotaTecnica(
           'Prueba de seguridad',
@@ -341,7 +357,11 @@ class PlanCasa {
       repsMaximas: 12,
       descansoSegundos: 90,
       descansoTexto: '90 s',
-      niveles: ['Piernas dobladas', 'Piernas estiradas', 'Pies sobre otra silla'],
+      niveles: [
+        'Piernas dobladas',
+        'Piernas estiradas',
+        'Pies sobre otra silla',
+      ],
       notas: [
         NotaTecnica(
           'Posición',
@@ -568,5 +588,6 @@ class PlanCasa {
     'Cerrás con 5 respiraciones lentas: 4 s inhalando, 6 s exhalando.',
   ];
 
-  static const notaVueltaALaCalma = 'Sostené cada estiramiento 30 s por lado, respirando lento.';
+  static const notaVueltaALaCalma =
+      'Sostené cada estiramiento 30 s por lado, respirando lento.';
 }

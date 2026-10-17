@@ -27,14 +27,22 @@ class _EstadoFormularioGuardado extends State<FormularioGuardado> {
     final estilos = Theme.of(context).textTheme;
     final esquema = Theme.of(context).colorScheme;
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(24, 8, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(
+        24,
+        8,
+        24,
+        24 + MediaQuery.viewInsetsOf(context).bottom,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
         children: [
           Text('Guardar la sesión', style: estilos.titleLarge),
-          Text('Vas a guardar ${widget.minutos} min.', style: estilos.bodyLarge),
+          Text(
+            'Vas a guardar ${widget.minutos} min.',
+            style: estilos.bodyLarge,
+          ),
           Text('¿Cómo te sentiste?', style: estilos.titleMedium),
           Row(
             children: [
@@ -45,7 +53,8 @@ class _EstadoFormularioGuardado extends State<FormularioGuardado> {
                   max: 10,
                   divisions: 9,
                   label: '${_sensacion.round()}',
-                  semanticFormatterCallback: (valor) => '${valor.round()} de 10',
+                  semanticFormatterCallback: (valor) =>
+                      '${valor.round()} de 10',
                   onChanged: (valor) => setState(() => _sensacion = valor),
                 ),
               ),
@@ -54,7 +63,9 @@ class _EstadoFormularioGuardado extends State<FormularioGuardado> {
                 child: Text(
                   '${_sensacion.round()}',
                   textAlign: TextAlign.center,
-                  style: estilos.headlineSmall?.copyWith(color: esquema.primary),
+                  style: estilos.headlineSmall?.copyWith(
+                    color: esquema.primary,
+                  ),
                 ),
               ),
             ],
@@ -70,6 +81,7 @@ class _EstadoFormularioGuardado extends State<FormularioGuardado> {
             controller: _notas,
             minLines: 2,
             maxLines: 4,
+            maxLength: 500,
             textCapitalization: TextCapitalization.sentences,
             decoration: const InputDecoration(
               labelText: 'Notas (opcional)',
@@ -77,9 +89,12 @@ class _EstadoFormularioGuardado extends State<FormularioGuardado> {
             ),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+            ),
             onPressed: () =>
-                Navigator.of(context).pop((sensacion: _sensacion.round(), notas: _notas.text)),
+                Navigator.of(context)
+                    .pop((sensacion: _sensacion.round(), notas: _notas.text)),
             child: const Text('Guardar'),
           ),
           TextButton(

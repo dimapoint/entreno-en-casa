@@ -19,8 +19,12 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     reloj = DateTime(2026, 10, 19, 9);
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
-      api: ServicioApi(cliente: MockClient((_) async => http.Response('', 500))),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
+      api: ServicioApi(
+        cliente: MockClient((_) async => http.Response('', 500)),
+      ),
       ahora: () => reloj,
     );
     await repositorio.iniciar();
@@ -35,38 +39,60 @@ void main() {
   MomentoMedicion momento(int semana) =>
       viewModel.momentos.singleWhere((candidato) => candidato.semana == semana);
 
-  RegistroSesion sesion(String id, DateTime fecha, {TipoSesion tipo = TipoSesion.fuerzaA}) =>
-      RegistroSesion(id: id, fecha: fecha, tipo: tipo, semana: 1);
+  RegistroSesion sesion(
+    String id,
+    DateTime fecha, {
+    TipoSesion tipo = TipoSesion.fuerzaA,
+  }) => RegistroSesion(id: id, fecha: fecha, tipo: tipo, semana: 1);
 
   group('diferencias contra el día 0', () {
     setUp(() async {
-      await repositorio.guardarMedicion(Medicion(
-        semana: 0,
-        fecha: DateTime(2026, 10, 19),
-        pesoKg: 75,
-        cinturaCm: 90,
-        flexiones: 10,
-        planchaSegundos: 30,
-        metros12Min: 1500,
-      ));
-      await repositorio.guardarMedicion(Medicion(
-        semana: 4,
-        fecha: DateTime(2026, 11, 16),
-        pesoKg: 72.4,
-        cinturaCm: 88.5,
-        flexiones: 14,
-        planchaSegundos: 45,
-        metros12Min: 1700,
-      ));
+      await repositorio.guardarMedicion(
+        Medicion(
+          semana: 0,
+          fecha: DateTime(2026, 10, 19),
+          pesoKg: 75,
+          cinturaCm: 90,
+          flexiones: 10,
+          planchaSegundos: 30,
+          metros12Min: 1500,
+        ),
+      );
+      await repositorio.guardarMedicion(
+        Medicion(
+          semana: 4,
+          fecha: DateTime(2026, 11, 16),
+          pesoKg: 72.4,
+          cinturaCm: 88.5,
+          flexiones: 14,
+          planchaSegundos: 45,
+          metros12Min: 1700,
+        ),
+      );
     });
 
     test('muestra cada diferencia con signo y redondeada', () {
       final semana4 = momento(4);
-      expect(semana4.diferencia(CampoMedicion.peso)?.texto, '−2,6 kg vs. día 0');
-      expect(semana4.diferencia(CampoMedicion.cintura)?.texto, '−1,5 cm vs. día 0');
-      expect(semana4.diferencia(CampoMedicion.flexiones)?.texto, '+4 rep vs. día 0');
-      expect(semana4.diferencia(CampoMedicion.plancha)?.texto, '+15 s vs. día 0');
-      expect(semana4.diferencia(CampoMedicion.prueba12Minutos)?.texto, '+200 m vs. día 0');
+      expect(
+        semana4.diferencia(CampoMedicion.peso)?.texto,
+        '−2,6 kg vs. día 0',
+      );
+      expect(
+        semana4.diferencia(CampoMedicion.cintura)?.texto,
+        '−1,5 cm vs. día 0',
+      );
+      expect(
+        semana4.diferencia(CampoMedicion.flexiones)?.texto,
+        '+4 rep vs. día 0',
+      );
+      expect(
+        semana4.diferencia(CampoMedicion.plancha)?.texto,
+        '+15 s vs. día 0',
+      );
+      expect(
+        semana4.diferencia(CampoMedicion.prueba12Minutos)?.texto,
+        '+200 m vs. día 0',
+      );
     });
 
     test('en peso y cintura que baje es buena señal, en el resto que suba', () {
@@ -77,20 +103,28 @@ void main() {
     });
 
     test('si el peso sube no cuenta como buena señal', () async {
-      await repositorio.guardarMedicion(Medicion(semana: 8, fecha: reloj, pesoKg: 76, flexiones: 10));
+      await repositorio.guardarMedicion(
+        Medicion(semana: 8, fecha: reloj, pesoKg: 76, flexiones: 10),
+      );
       final semana8 = momento(8);
       expect(semana8.diferencia(CampoMedicion.peso)?.texto, '+1 kg vs. día 0');
       expect(semana8.diferencia(CampoMedicion.peso)?.buenaSenal, isFalse);
-      expect(semana8.diferencia(CampoMedicion.flexiones)?.texto, 'Igual que el día 0');
+      expect(
+        semana8.diferencia(CampoMedicion.flexiones)?.texto,
+        'Igual que el día 0',
+      );
       expect(semana8.diferencia(CampoMedicion.flexiones)?.buenaSenal, isFalse);
     });
 
-    test('no hay diferencia en el día 0, en lo que falta ni sin día 0', () async {
-      expect(momento(0).diferencia(CampoMedicion.peso), isNull);
-      expect(momento(8).diferencia(CampoMedicion.peso), isNull);
-      await repositorio.borrarMedicion(0);
-      expect(momento(4).diferencia(CampoMedicion.peso), isNull);
-    });
+    test(
+      'no hay diferencia en el día 0, en lo que falta ni sin día 0',
+      () async {
+        expect(momento(0).diferencia(CampoMedicion.peso), isNull);
+        expect(momento(8).diferencia(CampoMedicion.peso), isNull);
+        await repositorio.borrarMedicion(0);
+        expect(momento(4).diferencia(CampoMedicion.peso), isNull);
+      },
+    );
 
     test('los valores se muestran con coma y sin ceros de más', () {
       expect(momento(4).textoDe(CampoMedicion.peso), '72,4 kg');
@@ -119,7 +153,10 @@ void main() {
 
     test('los enteros no admiten decimales', () {
       expect(CampoMedicion.flexiones.interpretar('12'), 12);
-      expect(CampoMedicion.flexiones.validar('12,5'), 'Escribí un número entero');
+      expect(
+        CampoMedicion.flexiones.validar('12,5'),
+        'Escribí un número entero',
+      );
     });
 
     test('vacío es válido porque cada medida es opcional', () {
@@ -129,12 +166,21 @@ void main() {
 
     test('controla el rango de cada medida', () {
       expect(CampoMedicion.peso.validar('72,5'), isNull);
-      expect(CampoMedicion.peso.validar('29,9'), 'Poné un valor entre 30 y 300');
+      expect(
+        CampoMedicion.peso.validar('29,9'),
+        'Poné un valor entre 30 y 300',
+      );
       expect(CampoMedicion.peso.validar('301'), 'Poné un valor entre 30 y 300');
       expect(CampoMedicion.peso.validar('72,5,1'), contains('coma o punto'));
-      expect(CampoMedicion.plancha.validar('0'), 'Poné un valor entre 1 y 1800');
+      expect(
+        CampoMedicion.plancha.validar('0'),
+        'Poné un valor entre 1 y 1800',
+      );
       expect(CampoMedicion.flexiones.validar('0'), isNull);
-      expect(CampoMedicion.prueba12Minutos.validar('7000'), 'Poné un valor entre 100 y 6000');
+      expect(
+        CampoMedicion.prueba12Minutos.validar('7000'),
+        'Poné un valor entre 100 y 6000',
+      );
     });
 
     test('guardar convierte el texto y usa la fecha de hoy', () async {
@@ -163,9 +209,15 @@ void main() {
     });
 
     test('al editar conserva la fecha original', () async {
-      await viewModel.guardarMedicion(semana: 0, textos: {CampoMedicion.peso: '75'});
+      await viewModel.guardarMedicion(
+        semana: 0,
+        textos: {CampoMedicion.peso: '75'},
+      );
       reloj = DateTime(2026, 10, 25);
-      await viewModel.guardarMedicion(semana: 0, textos: {CampoMedicion.peso: '74,8'});
+      await viewModel.guardarMedicion(
+        semana: 0,
+        textos: {CampoMedicion.peso: '74,8'},
+      );
 
       final medicion = repositorio.mediciones.single;
       expect(medicion.fecha, DateTime(2026, 10, 19));
@@ -175,7 +227,11 @@ void main() {
     test('sin ningún dato no guarda nada', () async {
       final guardado = await viewModel.guardarMedicion(
         semana: 0,
-        textos: {CampoMedicion.peso: '', CampoMedicion.cintura: 'abc', CampoMedicion.plancha: '9999'},
+        textos: {
+          CampoMedicion.peso: '',
+          CampoMedicion.cintura: 'abc',
+          CampoMedicion.plancha: '9999',
+        },
       );
 
       expect(guardado, isFalse);
@@ -185,7 +241,9 @@ void main() {
 
   group('momento pendiente', () {
     int? pendiente() {
-      final marcados = viewModel.momentos.where((candidato) => candidato.pendiente);
+      final marcados = viewModel.momentos.where(
+        (candidato) => candidato.pendiente,
+      );
       return marcados.isEmpty ? null : marcados.single.semana;
     }
 
@@ -197,7 +255,10 @@ void main() {
       await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
       expect(pendiente(), 0);
 
-      await viewModel.guardarMedicion(semana: 0, textos: {CampoMedicion.peso: '75'});
+      await viewModel.guardarMedicion(
+        semana: 0,
+        textos: {CampoMedicion.peso: '75'},
+      );
       expect(pendiente(), isNull);
     });
 
@@ -225,11 +286,15 @@ void main() {
   group('resumen y racha', () {
     Future<void> guardarFuerza(List<DateTime> fechas) async {
       for (final fecha in fechas) {
-        await repositorio.guardarSesion(sesion('fuerza-${fecha.toIso8601String()}', fecha));
+        await repositorio.guardarSesion(
+          sesion('fuerza-${fecha.toIso8601String()}', fecha),
+        );
       }
     }
 
-    setUp(() => reloj = DateTime(2026, 10, 28, 20)); // miércoles de la semana del 26/10
+    setUp(
+      () => reloj = DateTime(2026, 10, 28, 20),
+    ); // miércoles de la semana del 26/10
 
     test('sin sesiones todo da cero', () {
       final resumen = viewModel.resumen;
@@ -238,21 +303,32 @@ void main() {
       expect(resumen.rachaSemanas, 0);
     });
 
-    test('cuenta el total y las sesiones de esta semana, de lunes a domingo', () async {
-      await guardarFuerza([DateTime(2026, 10, 25, 23), DateTime(2026, 10, 26, 7)]);
-      await repositorio.guardarSesion(
-        sesion('cardio', DateTime(2026, 11, 1, 22), tipo: TipoSesion.cardioSuave),
-      );
-      await guardarFuerza([DateTime(2026, 11, 2)]);
+    test(
+      'cuenta el total y las sesiones de esta semana, de lunes a domingo',
+      () async {
+        await guardarFuerza([
+          DateTime(2026, 10, 25, 23),
+          DateTime(2026, 10, 26, 7),
+        ]);
+        await repositorio.guardarSesion(
+          sesion(
+            'cardio',
+            DateTime(2026, 11, 1, 22),
+            tipo: TipoSesion.cardioSuave,
+          ),
+        );
+        await guardarFuerza([DateTime(2026, 11, 2)]);
 
-      final resumen = viewModel.resumen;
-      expect(resumen.sesiones, 4);
-      expect(resumen.sesionesEstaSemana, 2);
-    });
+        final resumen = viewModel.resumen;
+        expect(resumen.sesiones, 4);
+        expect(resumen.sesionesEstaSemana, 2);
+      },
+    );
 
     test('la racha cuenta semanas seguidas con 3 sesiones de fuerza', () async {
       await guardarFuerza([
-        DateTime(2026, 10, 5), DateTime(2026, 10, 7), // semana incompleta: corta la racha
+        DateTime(2026, 10, 5),
+        DateTime(2026, 10, 7), // semana incompleta: corta la racha
         DateTime(2026, 10, 12), DateTime(2026, 10, 14), DateTime(2026, 10, 16),
         DateTime(2026, 10, 19), DateTime(2026, 10, 21), DateTime(2026, 10, 23),
       ]);
@@ -260,29 +336,46 @@ void main() {
       expect(viewModel.resumen.rachaSemanas, 2);
     });
 
-    test('la semana en curso incompleta no corta la racha y completa suma', () async {
+    test(
+      'la semana en curso incompleta no corta la racha y completa suma',
+      () async {
+        await guardarFuerza([
+          DateTime(2026, 10, 19),
+          DateTime(2026, 10, 21),
+          DateTime(2026, 10, 23),
+          DateTime(2026, 10, 26),
+        ]);
+        expect(viewModel.resumen.rachaSemanas, 1);
+
+        await guardarFuerza([DateTime(2026, 10, 27), DateTime(2026, 10, 28)]);
+        expect(viewModel.resumen.rachaSemanas, 2);
+      },
+    );
+
+    test('si falta la semana anterior la racha vuelve a cero', () async {
       await guardarFuerza([
-        DateTime(2026, 10, 19), DateTime(2026, 10, 21), DateTime(2026, 10, 23),
         DateTime(2026, 10, 26),
+        DateTime(2026, 10, 27),
+        DateTime(2026, 10, 28),
       ]);
       expect(viewModel.resumen.rachaSemanas, 1);
 
-      await guardarFuerza([DateTime(2026, 10, 27), DateTime(2026, 10, 28)]);
-      expect(viewModel.resumen.rachaSemanas, 2);
-    });
-
-    test('si falta la semana anterior la racha vuelve a cero', () async {
-      await guardarFuerza([DateTime(2026, 10, 26), DateTime(2026, 10, 27), DateTime(2026, 10, 28)]);
-      expect(viewModel.resumen.rachaSemanas, 1);
-
-      reloj = DateTime(2026, 11, 11); // dos semanas después, sin entrenar la del 2/11
+      reloj = DateTime(
+        2026,
+        11,
+        11,
+      ); // dos semanas después, sin entrenar la del 2/11
       expect(viewModel.resumen.rachaSemanas, 0);
     });
 
     test('el cardio no cuenta para la racha', () async {
       for (final dia in [19, 21, 23]) {
         await repositorio.guardarSesion(
-          sesion('cardio-$dia', DateTime(2026, 10, dia), tipo: TipoSesion.intervalos),
+          sesion(
+            'cardio-$dia',
+            DateTime(2026, 10, dia),
+            tipo: TipoSesion.intervalos,
+          ),
         );
       }
       expect(viewModel.resumen.rachaSemanas, 0);
@@ -294,7 +387,10 @@ void main() {
       await repositorio.guardarSesion(sesion('vieja', DateTime(2026, 10, 19)));
       await repositorio.guardarSesion(sesion('nueva', DateTime(2026, 10, 21)));
 
-      expect(viewModel.sesiones.map((registro) => registro.id), ['nueva', 'vieja']);
+      expect(viewModel.sesiones.map((registro) => registro.id), [
+        'nueva',
+        'vieja',
+      ]);
     });
 
     test('resume fuerza con ejercicios y series, y cardio con minutos', () {
@@ -304,8 +400,16 @@ void main() {
         tipo: TipoSesion.fuerzaA,
         semana: 1,
         ejercicios: const [
-          RegistroEjercicio(ejercicioId: 'flexiones', nivel: 1, repeticiones: [12, 11]),
-          RegistroEjercicio(ejercicioId: 'plancha_frontal', nivel: 2, repeticiones: [30]),
+          RegistroEjercicio(
+            ejercicioId: 'flexiones',
+            nivel: 1,
+            repeticiones: [12, 11],
+          ),
+          RegistroEjercicio(
+            ejercicioId: 'plancha_frontal',
+            nivel: 2,
+            repeticiones: [30],
+          ),
         ],
       );
       final unaSerie = RegistroSesion(
@@ -314,7 +418,11 @@ void main() {
         tipo: TipoSesion.fuerzaB,
         semana: 1,
         ejercicios: const [
-          RegistroEjercicio(ejercicioId: 'flexiones', nivel: 1, repeticiones: [12]),
+          RegistroEjercicio(
+            ejercicioId: 'flexiones',
+            nivel: 1,
+            repeticiones: [12],
+          ),
         ],
       );
       final cardio = RegistroSesion(
@@ -328,8 +436,12 @@ void main() {
       expect(viewModel.resumenDeSesion(fuerza), '2 ejercicios, 3 series');
       expect(viewModel.resumenDeSesion(unaSerie), '1 ejercicio, 1 serie');
       expect(viewModel.resumenDeSesion(cardio), '25 min');
-      expect(viewModel.resumenDeSesion(sesion('d', reloj, tipo: TipoSesion.descansoActivo)),
-          'Sin duración anotada');
+      expect(
+        viewModel.resumenDeSesion(
+          sesion('d', reloj, tipo: TipoSesion.descansoActivo),
+        ),
+        'Sin duración anotada',
+      );
     });
 
     test('el detalle trae nombre, nivel y repeticiones por serie', () {
@@ -339,9 +451,21 @@ void main() {
         tipo: TipoSesion.fuerzaA,
         semana: 1,
         ejercicios: const [
-          RegistroEjercicio(ejercicioId: 'flexiones', nivel: 2, repeticiones: [12, 11]),
-          RegistroEjercicio(ejercicioId: 'plancha_frontal', nivel: 1, repeticiones: [30, 28]),
-          RegistroEjercicio(ejercicioId: 'inexistente', nivel: 9, repeticiones: []),
+          RegistroEjercicio(
+            ejercicioId: 'flexiones',
+            nivel: 2,
+            repeticiones: [12, 11],
+          ),
+          RegistroEjercicio(
+            ejercicioId: 'plancha_frontal',
+            nivel: 1,
+            repeticiones: [30, 28],
+          ),
+          RegistroEjercicio(
+            ejercicioId: 'inexistente',
+            nivel: 9,
+            repeticiones: [],
+          ),
         ],
       );
 

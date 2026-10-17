@@ -19,11 +19,16 @@ class Calendario {
 
   static const horasMinimasEntreFuerza = 48;
 
-  static DateTime soloFecha(DateTime fecha) => DateTime(fecha.year, fecha.month, fecha.day);
+  static DateTime soloFecha(DateTime fecha) =>
+      DateTime(fecha.year, fecha.month, fecha.day);
 
   static DateTime lunesDe(DateTime fecha) {
     final dia = soloFecha(fecha);
-    return DateTime(dia.year, dia.month, dia.day - (dia.weekday - DateTime.monday));
+    return DateTime(
+      dia.year,
+      dia.month,
+      dia.day - (dia.weekday - DateTime.monday),
+    );
   }
 
   /// Primer lunes desde hoy, contando hoy si es lunes.
@@ -38,7 +43,9 @@ class Calendario {
     final lunesInicio = lunesDe(fechaInicio);
     final dia = soloFecha(hoy);
     final dias = DateTime.utc(dia.year, dia.month, dia.day)
-        .difference(DateTime.utc(lunesInicio.year, lunesInicio.month, lunesInicio.day))
+        .difference(
+          DateTime.utc(lunesInicio.year, lunesInicio.month, lunesInicio.day),
+        )
         .inDays;
     if (dias < 0) return null;
     return dias ~/ 7 + 1;
@@ -48,7 +55,8 @@ class Calendario {
   static int semanaEfectiva(int semanaAbsoluta) {
     if (semanaAbsoluta <= totalSemanas) return semanaAbsoluta;
     final tamanoCiclo = totalSemanas - semanaInicioCiclo + 1;
-    return semanaInicioCiclo + (semanaAbsoluta - totalSemanas - 1) % tamanoCiclo;
+    return semanaInicioCiclo +
+        (semanaAbsoluta - totalSemanas - 1) % tamanoCiclo;
   }
 
   static SemanaPlan planDeLaSemana(int semanaAbsoluta) =>
@@ -65,7 +73,8 @@ class Calendario {
   }
 
   /// Semanas impares hacen A-B-A y las pares B-A-B.
-  static List<Rutina> rutinasDeLaSemana(int semanaEfectiva) => semanaEfectiva.isOdd
+  static List<Rutina> rutinasDeLaSemana(int semanaEfectiva) =>
+      semanaEfectiva.isOdd
       ? const [Rutina.a, Rutina.b, Rutina.a]
       : const [Rutina.b, Rutina.a, Rutina.b];
 
@@ -76,13 +85,18 @@ class Calendario {
   }
 
   /// Series de un ejercicio en una semana. [semana] es la semana efectiva (1 a 13).
-  static int seriesPara(Ejercicio ejercicio, int semana, {bool diaFlojo = false}) {
+  static int seriesPara(
+    Ejercicio ejercicio,
+    int semana, {
+    bool diaFlojo = false,
+  }) {
     int series;
     if (semana <= 2 || semana == totalSemanas) {
       series = 2;
     } else if (semana == 3) {
       series = ejercicio.orden <= 3 ? 3 : 2;
-    } else if ((semana == 11 || semana == 12) && ejercicio.cuartaSerieSemanas11y12) {
+    } else if ((semana == 11 || semana == 12) &&
+        ejercicio.cuartaSerieSemanas11y12) {
       series = 4;
     } else {
       series = 3;
@@ -95,17 +109,21 @@ class Calendario {
 
   /// Sesión sugerida para un día. Los días son orientativos: el domingo no sugiere nada.
   /// [rutina] es la de fuerza que toca ese día.
-  static TipoSesion? sesionDelDia(DateTime fecha, int semanaAbsoluta, Rutina rutina) {
+  static TipoSesion? sesionDelDia(
+    DateTime fecha,
+    int semanaAbsoluta,
+    Rutina rutina,
+  ) {
     final plan = planDeLaSemana(semanaAbsoluta);
     return switch (fecha.weekday) {
-      DateTime.monday ||
-      DateTime.wednesday ||
-      DateTime.friday =>
+      DateTime.monday || DateTime.wednesday || DateTime.friday =>
         rutina == Rutina.a ? TipoSesion.fuerzaA : TipoSesion.fuerzaB,
       DateTime.tuesday => TipoSesion.cardioSuave,
       DateTime.thursday => TipoSesion.descansoActivo,
       DateTime.saturday =>
-        plan.tipoSabado == TipoSabado.intervalos ? TipoSesion.intervalos : TipoSesion.cardioSuave,
+        plan.tipoSabado == TipoSabado.intervalos
+            ? TipoSesion.intervalos
+            : TipoSesion.cardioSuave,
       _ => null,
     };
   }

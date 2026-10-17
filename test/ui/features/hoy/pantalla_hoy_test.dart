@@ -21,7 +21,9 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     visitasAProgreso = 0;
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
       api: ServicioApi(urlBase: ''),
     );
   });
@@ -44,59 +46,76 @@ void main() {
         child: MaterialApp(
           theme: _temaDePrueba,
           builder: (context, hijo) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(escalaDeTexto)),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(escalaDeTexto)),
             child: hijo!,
           ),
-          home: PantallaHoy(irAProgreso: () => visitasAProgreso++, ahora: () => ahora),
+          home: PantallaHoy(
+            irAProgreso: () => visitasAProgreso++,
+            ahora: () => ahora,
+          ),
         ),
       ),
     );
   }
 
-  testWidgets('sin fecha propone el lunes y al aceptar muestra la cuenta regresiva', (tester) async {
-    await abrir(tester, DateTime(2026, 10, 17, 10));
+  testWidgets(
+    'sin fecha propone el lunes y al aceptar muestra la cuenta regresiva',
+    (tester) async {
+      await abrir(tester, DateTime(2026, 10, 17, 10));
 
-    expect(find.text('Arrancar el lunes 19 de octubre'), findsOneWidget);
-    expect(find.text('Elegir otra fecha'), findsOneWidget);
+      expect(find.text('Arrancar el lunes 19 de octubre'), findsOneWidget);
+      expect(find.text('Elegir otra fecha'), findsOneWidget);
 
-    await tester.tap(find.text('Arrancar el lunes 19 de octubre'));
-    await tester.pump();
+      await tester.tap(find.text('Arrancar el lunes 19 de octubre'));
+      await tester.pump();
 
-    expect(repositorio.fechaInicio, DateTime(2026, 10, 19));
-    expect(find.text('Faltan 2 días'), findsOneWidget);
-    expect(find.text('Antes del primer entrenamiento'), findsOneWidget);
-  });
+      expect(repositorio.fechaInicio, DateTime(2026, 10, 19));
+      expect(find.text('Faltan 2 días'), findsOneWidget);
+      expect(find.text('Antes del primer entrenamiento'), findsOneWidget);
+    },
+  );
 
-  testWidgets('antes de empezar las casillas se marcan y llevan a Progreso', (tester) async {
+  testWidgets('antes de empezar las casillas se marcan y llevan a Progreso', (
+    tester,
+  ) async {
     await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
     await abrir(tester, DateTime(2026, 10, 17, 10));
 
     await tester.tap(find.byType(CheckboxListTile).first);
     await tester.pump();
-    expect(tester.widget<CheckboxListTile>(find.byType(CheckboxListTile).first).value, isTrue);
+    expect(
+      tester
+          .widget<CheckboxListTile>(find.byType(CheckboxListTile).first)
+          .value,
+      isTrue,
+    );
 
     await tester.tap(find.text('Ir a Progreso'));
     expect(visitasAProgreso, 1);
   });
 
-  testWidgets('el primer lunes muestra fuerza A y empuja la pantalla de fuerza', (tester) async {
-    await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
-    await abrir(tester, DateTime(2026, 10, 19, 8));
+  testWidgets(
+    'el primer lunes muestra fuerza A y empuja la pantalla de fuerza',
+    (tester) async {
+      await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
+      await abrir(tester, DateTime(2026, 10, 19, 8));
 
-    expect(find.text('Semana 1 de 13'), findsOneWidget);
-    expect(find.text('Fuerza A'), findsOneWidget);
-    expect(find.text('Duración: 45 a 55 min'), findsOneWidget);
-    expect(find.text('Faltan las mediciones del día 0'), findsOneWidget);
+      expect(find.text('Semana 1 de 13'), findsOneWidget);
+      expect(find.text('Fuerza A'), findsOneWidget);
+      expect(find.text('Duración: 45 a 55 min'), findsOneWidget);
+      expect(find.text('Faltan las mediciones del día 0'), findsOneWidget);
 
-    await tester.tap(find.text('Ir a Progreso'));
-    expect(visitasAProgreso, 1);
+      await tester.tap(find.text('Ir a Progreso'));
+      expect(visitasAProgreso, 1);
 
-    await tester.tap(find.text('Empezar'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('Empezar'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.byType(PantallaFuerza), findsOneWidget);
-  });
+      expect(find.byType(PantallaFuerza), findsOneWidget);
+    },
+  );
 
   testWidgets('el menú permite hacer cualquier otra sesión', (tester) async {
     await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
@@ -114,7 +133,9 @@ void main() {
     expect(find.byType(PantallaCardio), findsOneWidget);
   });
 
-  testWidgets('el domingo es descanso total y no ofrece empezar', (tester) async {
+  testWidgets('el domingo es descanso total y no ofrece empezar', (
+    tester,
+  ) async {
     await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
     await abrir(tester, DateTime(2026, 10, 25, 9));
 
@@ -122,7 +143,9 @@ void main() {
     expect(find.text('Empezar'), findsNothing);
   });
 
-  testWidgets('pasada la semana 13 aclara cuál es la semana efectiva', (tester) async {
+  testWidgets('pasada la semana 13 aclara cuál es la semana efectiva', (
+    tester,
+  ) async {
     await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
     await abrir(tester, DateTime(2027, 1, 18, 9));
 
@@ -130,8 +153,15 @@ void main() {
     expect(find.text('Ciclo repetido: semana efectiva 5'), findsOneWidget);
   });
 
-  testWidgets('cabe en 360 dp con el texto grande en cada etapa', (tester) async {
-    await abrir(tester, DateTime(2026, 10, 17, 10), ancho: 360, escalaDeTexto: 1.5);
+  testWidgets('cabe en 360 dp con el texto grande en cada etapa', (
+    tester,
+  ) async {
+    await abrir(
+      tester,
+      DateTime(2026, 10, 17, 10),
+      ancho: 360,
+      escalaDeTexto: 1.5,
+    );
     expect(tester.takeException(), isNull);
 
     await repositorio.guardarFechaInicio(DateTime(2026, 10, 19));
@@ -149,7 +179,12 @@ void main() {
       ),
     );
     await tester.pumpWidget(const SizedBox());
-    await abrir(tester, DateTime(2026, 10, 19, 8), ancho: 360, escalaDeTexto: 1.5);
+    await abrir(
+      tester,
+      DateTime(2026, 10, 19, 8),
+      ancho: 360,
+      escalaDeTexto: 1.5,
+    );
     expect(find.textContaining('Pasaron menos de 48 h'), findsOneWidget);
     expect(find.text('Faltan las mediciones del día 0'), findsOneWidget);
     expect(tester.takeException(), isNull);

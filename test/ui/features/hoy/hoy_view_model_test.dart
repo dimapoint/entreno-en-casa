@@ -24,7 +24,9 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     reloj = DateTime(2026, 10, 17, 10); // sábado antes de arrancar
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
       api: ServicioApi(urlBase: ''),
     );
     viewModel = HoyViewModel(repositorio: repositorio, ahora: () => reloj);
@@ -115,7 +117,7 @@ void main() {
       expect(dias.map((dia) => dia.sesion), [
         TipoSesion.fuerzaA,
         TipoSesion.cardioSuave,
-        TipoSesion.fuerzaB,
+        TipoSesion.fuerzaA,
         TipoSesion.descansoActivo,
         TipoSesion.fuerzaA,
         TipoSesion.cardioSuave,
@@ -125,20 +127,33 @@ void main() {
       expect(dias.any((dia) => dia.registrada), isFalse);
     });
 
-    test('la sesión de fuerza hecha cambia la rutina sugerida y marca el día', () async {
-      await repositorio.guardarSesion(_sesion('lunes', DateTime(2026, 10, 19, 10)));
-      reloj = DateTime(2026, 10, 21, 12); // 50 h después
+    test(
+      'la sesión de fuerza hecha cambia la rutina sugerida y marca el día',
+      () async {
+        await repositorio.guardarSesion(
+          _sesion('lunes', DateTime(2026, 10, 19, 10)),
+        );
+        reloj = DateTime(2026, 10, 21, 12); // 50 h después
 
-      expect(viewModel.rutinaDeHoy, Rutina.b);
-      expect(viewModel.sesionDeHoy, TipoSesion.fuerzaB);
-      expect(viewModel.avisarDescansoInsuficiente, isFalse);
-      expect(viewModel.dias.map((dia) => dia.registrada), [
-        true, false, false, false, false, false, false,
-      ]);
-    });
+        expect(viewModel.rutinaDeHoy, Rutina.b);
+        expect(viewModel.sesionDeHoy, TipoSesion.fuerzaB);
+        expect(viewModel.avisarDescansoInsuficiente, isFalse);
+        expect(viewModel.dias.map((dia) => dia.registrada), [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+        ]);
+      },
+    );
 
     test('avisa si pasaron menos de 48 h desde la última fuerza en un día de fuerza', () async {
-      await repositorio.guardarSesion(_sesion('lunes', DateTime(2026, 10, 19, 10)));
+      await repositorio.guardarSesion(
+        _sesion('lunes', DateTime(2026, 10, 19, 10)),
+      );
 
       reloj = DateTime(2026, 10, 21, 8); // 46 h después
       expect(viewModel.sesionDeHoy?.esFuerza, isTrue);
@@ -149,7 +164,9 @@ void main() {
     });
 
     test('no avisa en días de cardio aunque la fuerza sea reciente', () async {
-      await repositorio.guardarSesion(_sesion('lunes', DateTime(2026, 10, 19, 20)));
+      await repositorio.guardarSesion(
+        _sesion('lunes', DateTime(2026, 10, 19, 20)),
+      );
       reloj = DateTime(2026, 10, 20, 8);
 
       expect(viewModel.sesionDeHoy, TipoSesion.cardioSuave);
@@ -157,7 +174,9 @@ void main() {
     });
 
     test('la fuerza de la semana anterior cuenta para el aviso pero no para la rutina', () async {
-      await repositorio.guardarSesion(_sesion('domingo', DateTime(2026, 10, 25, 20)));
+      await repositorio.guardarSesion(
+        _sesion('domingo', DateTime(2026, 10, 25, 20)),
+      );
       reloj = DateTime(2026, 10, 26, 10); // lunes de la semana 2
 
       expect(viewModel.semana, 2);
@@ -212,17 +231,20 @@ void main() {
       expect(viewModel.dias.last.esHoy, isTrue);
     });
 
-    test('la medición de la semana 4 queda pendiente hasta que se carga', () async {
-      reloj = DateTime(2026, 11, 9, 9); // lunes de la semana 4
-      await repositorio.guardarMedicion(Medicion(semana: 0, fecha: inicio));
+    test(
+      'la medición de la semana 4 queda pendiente hasta que se carga',
+      () async {
+        reloj = DateTime(2026, 11, 9, 9); // lunes de la semana 4
+        await repositorio.guardarMedicion(Medicion(semana: 0, fecha: inicio));
 
-      expect(viewModel.semana, 4);
-      expect(viewModel.medicionPendiente, 4);
-      expect(viewModel.plan.hito, 'Primera medición');
+        expect(viewModel.semana, 4);
+        expect(viewModel.medicionPendiente, 4);
+        expect(viewModel.plan.hito, 'Primera medición');
 
-      await repositorio.guardarMedicion(Medicion(semana: 4, fecha: reloj));
-      expect(viewModel.medicionPendiente, isNull);
-    });
+        await repositorio.guardarMedicion(Medicion(semana: 4, fecha: reloj));
+        expect(viewModel.medicionPendiente, isNull);
+      },
+    );
 
     test('con el día 0 cargado la semana 1 no pide medir', () async {
       reloj = DateTime(2026, 10, 19, 9);
@@ -253,7 +275,9 @@ void main() {
       var avisos = 0;
       viewModel.addListener(() => avisos++);
 
-      await repositorio.guardarSesion(_sesion('hoy', DateTime(2026, 10, 19, 17)));
+      await repositorio.guardarSesion(
+        _sesion('hoy', DateTime(2026, 10, 19, 17)),
+      );
 
       expect(avisos, greaterThan(0));
       expect(viewModel.hizoSesionHoy, isTrue);

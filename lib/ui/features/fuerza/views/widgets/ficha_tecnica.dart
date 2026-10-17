@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../../../domain/models/ejercicio.dart';
 
-Future<void> mostrarFichaTecnica(BuildContext context, Ejercicio ejercicio, int nivelElegido) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (_) => _FichaTecnica(ejercicio: ejercicio, nivelElegido: nivelElegido),
-    );
+Future<void> mostrarFichaTecnica(
+  BuildContext context,
+  Ejercicio ejercicio,
+  int nivelElegido,
+) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  showDragHandle: true,
+  builder: (_) =>
+      _FichaTecnica(ejercicio: ejercicio, nivelElegido: nivelElegido),
+);
 
 class _FichaTecnica extends StatelessWidget {
   const _FichaTecnica({required this.ejercicio, required this.nivelElegido});
@@ -45,10 +49,14 @@ class _FichaTecnica extends StatelessWidget {
               selected: nivelElegido == indice + 1,
               selectedTileColor: tema.colorScheme.primaryContainer,
               selectedColor: tema.colorScheme.onPrimaryContainer,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               leading: CircleAvatar(child: Text('${indice + 1}')),
               title: Text(ejercicio.niveles[indice]),
-              subtitle: nivelElegido == indice + 1 ? const Text('El que elegiste hoy') : null,
+              subtitle: nivelElegido == indice + 1
+                  ? const Text('El que elegiste hoy')
+                  : null,
             ),
         ],
       ),

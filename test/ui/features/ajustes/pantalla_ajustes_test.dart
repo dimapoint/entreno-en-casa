@@ -16,7 +16,9 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
       api: ServicioApi(urlBase: ''),
     );
   });
@@ -35,16 +37,25 @@ void main() {
     );
   }
 
-  testWidgets('muestra las secciones y aclara que no hay servidor', (tester) async {
+  testWidgets('muestra las secciones y aclara que no hay servidor', (
+    tester,
+  ) async {
     await abrir(tester);
 
     expect(find.text('Fecha de inicio'), findsOneWidget);
     expect(find.text('Sincronización'), findsOneWidget);
     expect(find.text('Acerca de'), findsOneWidget);
-    expect(find.textContaining('no tiene un servidor configurado'), findsOneWidget);
+    expect(
+      find.textContaining('no tiene un servidor configurado'),
+      findsOneWidget,
+    );
     expect(find.textContaining('Aviso médico'), findsOneWidget);
     expect(
-      tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Sincronizar ahora')).onPressed,
+      tester
+          .widget<FilledButton>(
+            find.widgetWithText(FilledButton, 'Sincronizar ahora'),
+          )
+          .onPressed,
       isNull,
     );
   });
@@ -60,7 +71,8 @@ void main() {
         child: MaterialApp(
           theme: _temaDePrueba,
           builder: (context, hijo) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.5)),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(1.5)),
             child: hijo!,
           ),
           home: const PantallaAjustes(),
@@ -74,7 +86,8 @@ void main() {
 
   testWidgets('el código arranca oculto y se puede mostrar', (tester) async {
     await abrir(tester);
-    bool oculto() => tester.widget<TextField>(find.byType(TextField)).obscureText;
+    bool oculto() =>
+        tester.widget<TextField>(find.byType(TextField)).obscureText;
 
     expect(oculto(), isTrue);
 
@@ -87,8 +100,9 @@ void main() {
 
   testWidgets('guardar y quitar el código', (tester) async {
     await abrir(tester);
-    FilledButton guardar() =>
-        tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Guardar'));
+    FilledButton guardar() => tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Guardar'),
+    );
     expect(guardar().onPressed, isNull);
 
     await tester.enterText(find.byType(TextField), 'secreto');
@@ -105,7 +119,10 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(repositorio.codigoSync, isEmpty);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller?.text, isEmpty);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller?.text,
+      isEmpty,
+    );
   });
 
   testWidgets('elegir la fecha de inicio la guarda', (tester) async {

@@ -7,14 +7,14 @@ void main() {
   var terminado = false;
 
   ControladorFases crear() => ControladorFases(
-        const [
-          FaseTemporizador(titulo: 'Fuerte', segundos: 40),
-          FaseTemporizador(titulo: 'Pausa', segundos: 20, esDescanso: true),
-        ],
-        ahora: () => reloj,
-        alCambiarFase: (fase) => avisos.add(fase.titulo),
-        alTerminar: () => terminado = true,
-      );
+    const [
+      FaseTemporizador(titulo: 'Fuerte', segundos: 40),
+      FaseTemporizador(titulo: 'Pausa', segundos: 20, esDescanso: true),
+    ],
+    ahora: () => reloj,
+    alCambiarFase: (fase) => avisos.add(fase.titulo),
+    alTerminar: () => terminado = true,
+  );
 
   setUp(() {
     reloj = DateTime(2026, 10, 19, 10);

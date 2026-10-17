@@ -68,18 +68,20 @@ enum CampoMedicion {
   static final _patronEntero = RegExp(r'^\d+$');
 
   num? valorEn(Medicion medicion) => switch (this) {
-        CampoMedicion.peso => medicion.pesoKg,
-        CampoMedicion.cintura => medicion.cinturaCm,
-        CampoMedicion.flexiones => medicion.flexiones,
-        CampoMedicion.plancha => medicion.planchaSegundos,
-        CampoMedicion.prueba12Minutos => medicion.metros12Min,
-      };
+    CampoMedicion.peso => medicion.pesoKg,
+    CampoMedicion.cintura => medicion.cinturaCm,
+    CampoMedicion.flexiones => medicion.flexiones,
+    CampoMedicion.plancha => medicion.planchaSegundos,
+    CampoMedicion.prueba12Minutos => medicion.metros12Min,
+  };
 
   /// Número que escribió la persona, o nulo si el texto está vacío o no tiene formato válido.
   /// No mira el rango: eso lo hace [validar].
   num? interpretar(String texto) {
     final limpio = texto.trim();
-    if (!(decimal ? _patronDecimal : _patronEntero).hasMatch(limpio)) return null;
+    if (!(decimal ? _patronDecimal : _patronEntero).hasMatch(limpio)) {
+      return null;
+    }
     return num.tryParse(limpio.replaceAll(',', '.'));
   }
 
@@ -88,7 +90,9 @@ enum CampoMedicion {
     if (texto == null || texto.trim().isEmpty) return null;
     final valor = interpretar(texto);
     if (valor == null) {
-      return decimal ? 'Escribí un número con coma o punto, por ejemplo 72,5' : 'Escribí un número entero';
+      return decimal
+          ? 'Escribí un número con coma o punto, por ejemplo 72,5'
+          : 'Escribí un número entero';
     }
     if (valor < minimo || valor > maximo) {
       return 'Poné un valor entre ${textoNumero(minimo)} y ${textoNumero(maximo)}';

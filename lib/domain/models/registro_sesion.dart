@@ -28,15 +28,18 @@ class RegistroEjercicio {
   final List<int> repeticiones;
 
   Map<String, dynamic> aJson() => {
-        'ejercicioId': ejercicioId,
-        'nivel': nivel,
-        'repeticiones': repeticiones,
-      };
+    'ejercicioId': ejercicioId,
+    'nivel': nivel,
+    'repeticiones': repeticiones,
+  };
 
-  factory RegistroEjercicio.deJson(Map<String, dynamic> json) => RegistroEjercicio(
+  factory RegistroEjercicio.deJson(Map<String, dynamic> json) =>
+      RegistroEjercicio(
         ejercicioId: json['ejercicioId'] as String,
         nivel: json['nivel'] as int,
-        repeticiones: (json['repeticiones'] as List).map((valor) => valor as int).toList(),
+        repeticiones: (json['repeticiones'] as List)
+            .map((valor) => valor as int)
+            .toList(),
       );
 }
 
@@ -68,23 +71,28 @@ class RegistroSesion {
   final String notas;
 
   Map<String, dynamic> aJson() => {
-        'fecha': fecha.toIso8601String(),
-        'tipo': tipo.name,
-        'semana': semana,
-        'ejercicios': ejercicios.map((ejercicio) => ejercicio.aJson()).toList(),
-        'duracionMinutos': duracionMinutos,
-        'sensacion': sensacion,
-        'diaFlojo': diaFlojo,
-        'notas': notas,
-      };
+    'fecha': fecha.toIso8601String(),
+    'tipo': tipo.name,
+    'semana': semana,
+    'ejercicios': ejercicios.map((ejercicio) => ejercicio.aJson()).toList(),
+    'duracionMinutos': duracionMinutos,
+    'sensacion': sensacion,
+    'diaFlojo': diaFlojo,
+    'notas': notas,
+  };
 
-  factory RegistroSesion.deJson(String id, Map<String, dynamic> json) => RegistroSesion(
+  factory RegistroSesion.deJson(String id, Map<String, dynamic> json) =>
+      RegistroSesion(
         id: id,
         fecha: DateTime.parse(json['fecha'] as String),
         tipo: TipoSesion.values.byName(json['tipo'] as String),
         semana: json['semana'] as int,
         ejercicios: (json['ejercicios'] as List? ?? const [])
-            .map((item) => RegistroEjercicio.deJson(Map<String, dynamic>.from(item as Map)))
+            .map(
+              (item) => RegistroEjercicio.deJson(
+                Map<String, dynamic>.from(item as Map),
+              ),
+            )
             .toList(),
         duracionMinutos: json['duracionMinutos'] as int?,
         sensacion: json['sensacion'] as int?,

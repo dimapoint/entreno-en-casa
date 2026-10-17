@@ -20,17 +20,26 @@ class ServicioAlmacenamiento {
   List<Registro> leerRegistros() {
     final texto = _preferencias.getString(_claveRegistros);
     if (texto == null) return [];
+    final List<dynamic> items;
     try {
-      return (jsonDecode(texto) as List)
-          .map((item) => Registro.deJson(Map<String, dynamic>.from(item as Map)))
-          .toList();
+      items = jsonDecode(texto) as List;
     } on Object {
-      // Datos dañados: se arranca vacío y el próximo sync los recupera del servidor.
+      // Datos dañados por completo: se arranca vacío y el próximo sync los recupera del servidor.
       return [];
     }
+    final registros = <Registro>[];
+    for (final item in items) {
+      try {
+        registros.add(Registro.deJson(Map<String, dynamic>.from(item as Map)));
+      } on Object {
+        // Se descarta solo el registro dañado; el resto sigue.
+      }
+    }
+    return registros;
   }
 
-  Future<void> guardarRegistros(Iterable<Registro> registros) => _preferencias.setString(
+  Future<void> guardarRegistros(Iterable<Registro> registros) =>
+      _preferencias.setString(
         _claveRegistros,
         jsonEncode(registros.map((registro) => registro.aJsonLocal()).toList()),
       );

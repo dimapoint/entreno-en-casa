@@ -17,7 +17,9 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
       api: ServicioApi(
         cliente: MockClient((_) async => http.Response('{}', 200)),
         urlBase: 'https://ejemplo.test',
@@ -29,7 +31,11 @@ void main() {
   tearDown(() => repositorio.dispose());
 
   /// Monta un lanzador que empuja la pantalla, como hace el shell de la app.
-  Future<void> abrir(WidgetTester tester, {Rutina rutina = Rutina.a, int semana = 3}) async {
+  Future<void> abrir(
+    WidgetTester tester, {
+    Rutina rutina = Rutina.a,
+    int semana = 3,
+  }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -46,7 +52,8 @@ void main() {
                 child: FilledButton(
                   onPressed: () => Navigator.of(contexto).push(
                     MaterialPageRoute<void>(
-                      builder: (_) => PantallaFuerza(rutina: rutina, semana: semana),
+                      builder: (_) =>
+                          PantallaFuerza(rutina: rutina, semana: semana),
                     ),
                   ),
                   child: const Text('Abrir'),
@@ -73,14 +80,20 @@ void main() {
   }
 
   /// Desmonta la pantalla para que se libere el temporizador de descanso.
-  Future<void> cerrar(WidgetTester tester) => tester.pumpWidget(const SizedBox.shrink());
+  Future<void> cerrar(WidgetTester tester) =>
+      tester.pumpWidget(const SizedBox.shrink());
 
-  testWidgets('muestra el encabezado, el consejo y los seis ejercicios', (tester) async {
+  testWidgets('muestra el encabezado, el consejo y los seis ejercicios', (
+    tester,
+  ) async {
     await abrir(tester);
 
     expect(find.text('Fuerza A'), findsOneWidget);
     expect(find.text('Semana 3 · Base'), findsOneWidget);
-    expect(find.text('3 series en los primeros 3 ejercicios, 2 en el resto'), findsOneWidget);
+    expect(
+      find.text('3 series en los primeros 3 ejercicios, 2 en el resto'),
+      findsOneWidget,
+    );
     expect(find.textContaining('Para ahorrar unos 10 min'), findsOneWidget);
     expect(find.textContaining('1. Sentadilla búlgara'), findsOneWidget);
     expect(find.textContaining('6. Plancha lateral'), findsOneWidget);
@@ -93,43 +106,54 @@ void main() {
     await cerrar(tester);
   });
 
-  testWidgets('pasada la semana 13 avisa que es el ciclo repetido', (tester) async {
+  testWidgets('pasada la semana 13 avisa que es el ciclo repetido', (
+    tester,
+  ) async {
     await abrir(tester, rutina: Rutina.b, semana: 15);
 
     expect(find.text('Fuerza B'), findsOneWidget);
     expect(find.text('Semana 15 · Construcción'), findsOneWidget);
-    expect(find.text('Ciclo repetido: esta semana toca como la 6.'), findsOneWidget);
+    expect(
+      find.text('Ciclo repetido: esta semana toca como la 6.'),
+      findsOneWidget,
+    );
     await cerrar(tester);
   });
 
-  testWidgets('dar una serie por hecha avanza el contador y muestra el descanso', (tester) async {
-    await abrir(tester);
+  testWidgets(
+    'dar una serie por hecha avanza el contador y muestra el descanso',
+    (tester) async {
+      await abrir(tester);
 
-    expect(find.text('Serie 1 de 3'), findsNWidgets(3));
-    await hacerPrimeraSerie(tester);
-    await tester.pump();
+      expect(find.text('Serie 1 de 3'), findsNWidgets(3));
+      await hacerPrimeraSerie(tester);
+      await tester.pump();
 
-    expect(find.text('Serie 2 de 3'), findsOneWidget);
-    expect(find.text('Serie 1: 8'), findsOneWidget);
-    expect(find.text('Descanso 01:30'), findsOneWidget);
+      expect(find.text('Serie 2 de 3'), findsOneWidget);
+      expect(find.text('Serie 1: 8'), findsOneWidget);
+      expect(find.text('Descanso 01:30'), findsOneWidget);
 
-    await tester.tap(find.text('Saltar'));
-    await tester.pump();
-    expect(find.textContaining('Descanso 0'), findsNothing);
-    await cerrar(tester);
-  });
+      await tester.tap(find.text('Saltar'));
+      await tester.pump();
+      expect(find.textContaining('Descanso 0'), findsNothing);
+      await cerrar(tester);
+    },
+  );
 
-  testWidgets('entra en 360 dp de ancho aunque el texto del sistema sea más grande', (tester) async {
-    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
-    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    await abrir(tester, rutina: Rutina.b);
+  testWidgets(
+    'entra en 360 dp de ancho aunque el texto del sistema sea más grande',
+    (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await abrir(tester, rutina: Rutina.b);
 
-    // Una falla de layout (desborde) en cualquier tarjeta o en el descanso rompe la prueba.
-    await hacerPrimeraSerie(tester);
-    expect(find.textContaining('Descanso'), findsWidgets);
-    expect(tester.takeException(), isNull);
-    await cerrar(tester);
-  });
+      // Una falla de layout (desborde) en cualquier tarjeta o en el descanso rompe la prueba.
+      await hacerPrimeraSerie(tester);
+      expect(find.textContaining('Descanso'), findsWidgets);
+      expect(tester.takeException(), isNull);
+      await cerrar(tester);
+    },
+  );
 
   testWidgets('el día flojo deja 2 series por ejercicio', (tester) async {
     await abrir(tester);
@@ -140,14 +164,19 @@ void main() {
     await cerrar(tester);
   });
 
-  testWidgets('la ficha técnica muestra las notas y resalta el nivel elegido', (tester) async {
+  testWidgets('la ficha técnica muestra las notas y resalta el nivel elegido', (
+    tester,
+  ) async {
     await abrir(tester);
     final boton = find.byTooltip('Ficha técnica: Flexiones de brazos');
     await irA(tester, boton);
     await tester.tap(boton);
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Errores comunes: ', findRichText: true), findsOneWidget);
+    expect(
+      find.textContaining('Errores comunes: ', findRichText: true),
+      findsOneWidget,
+    );
     expect(find.text('Niveles'), findsOneWidget);
     expect(find.text('El que elegiste hoy'), findsOneWidget);
     await cerrar(tester);
@@ -158,7 +187,10 @@ void main() {
     await tester.tap(find.text('Terminar sesión'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Marcá al menos una serie para guardar la sesión.'), findsOneWidget);
+    expect(
+      find.text('Marcá al menos una serie para guardar la sesión.'),
+      findsOneWidget,
+    );
     expect(find.text('¿Cómo te sentiste?'), findsNothing);
     await cerrar(tester);
   });
@@ -193,7 +225,9 @@ void main() {
     await cerrar(tester);
   });
 
-  testWidgets('con series sin guardar pide confirmación antes de salir', (tester) async {
+  testWidgets('con series sin guardar pide confirmación antes de salir', (
+    tester,
+  ) async {
     await abrir(tester);
     await hacerPrimeraSerie(tester);
     await tester.pump();

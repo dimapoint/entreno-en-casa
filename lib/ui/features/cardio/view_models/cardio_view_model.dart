@@ -13,7 +13,8 @@ import '../../../core/temporizador_fases.dart';
 
 const _intensidadSuave =
     'Esfuerzo de 4 a 5 sobre 10. Hablás en frases de 5 a 8 palabras. Pulso de 115 a 135 lpm.';
-const _intensidadFuerte = 'Esfuerzo 8 sobre 10. Solo palabras sueltas. Pulso de 160 lpm o más.';
+const _intensidadFuerte =
+    'Esfuerzo 8 sobre 10. Solo palabras sueltas. Pulso de 160 lpm o más.';
 
 const _minutosEntradaEnCalor = 5;
 const _segundosFuerte = 40;
@@ -40,8 +41,9 @@ const _ejerciciosDeIntervalos = <_EjercicioDeIntervalos>[
   (nombre: 'rodillas arriba trotando en el lugar', pista: null),
 ];
 
-final _nombresDeEjerciciosDeIntervalos =
-    _ejerciciosDeIntervalos.map((ejercicio) => ejercicio.nombre).join(', ');
+final _nombresDeEjerciciosDeIntervalos = _ejerciciosDeIntervalos
+    .map((ejercicio) => ejercicio.nombre)
+    .join(', ');
 
 typedef OpcionDeCardio = ({String titulo, String texto});
 
@@ -71,9 +73,9 @@ class CardioViewModel extends ChangeNotifier {
     required this.semana,
     this._minutos,
     DateTime Function()? ahora,
-  })  : assert(!tipo.esFuerza, 'La fuerza tiene su propia pantalla'),
-        assert(semana >= 1),
-        _ahora = ahora ?? DateTime.now {
+  }) : assert(!tipo.esFuerza, 'La fuerza tiene su propia pantalla'),
+       assert(semana >= 1),
+       _ahora = ahora ?? DateTime.now {
     _controlador = _crearControlador();
   }
 
@@ -104,13 +106,16 @@ class CardioViewModel extends ChangeNotifier {
   /// Hay algo hecho que se puede guardar. Con 0 minutos transcurridos no hay nada.
   bool get puedeGuardar => _controlador.transcurrido > Duration.zero;
 
-  int get duracionRealMinutos =>
-      matematica.max(1, (_controlador.transcurrido.inMilliseconds / 60000).round());
+  int get duracionRealMinutos => matematica.max(
+    1,
+    (_controlador.transcurrido.inMilliseconds / 60000).round(),
+  );
 
   /// Los intervalos fuera de su semana se dejan hacer, pero se avisa.
-  String? get aviso => tipo == TipoSesion.intervalos && _plan.tipoSabado != TipoSabado.intervalos
+  String? get aviso =>
+      tipo == TipoSesion.intervalos && _plan.tipoSabado != TipoSabado.intervalos
       ? 'El plan arranca los intervalos en la semana 5. Si querés hacerlos igual, vas con '
-          '$_vueltasFueraDelPlan vueltas.'
+            '$_vueltasFueraDelPlan vueltas.'
       : null;
 
   List<OpcionDeCardio> get opciones =>
@@ -122,37 +127,40 @@ class CardioViewModel extends ChangeNotifier {
 
   /// Resumen de la sesión para mostrar antes de arrancar.
   List<String> get estructura => switch (tipo) {
-        TipoSesion.cardioSuave => [
-            _desdeCero
-                ? PlanCasa.troteDesdeCero(_semanaEfectiva).texto
-                : '$_minutosDeCardioSuave min de cardio suave',
-            _intensidadSuave,
-          ],
-        TipoSesion.intervalos => [
-            '$_minutosEntradaEnCalor min suaves: caminata o trote en el lugar',
-            '$_vueltas vueltas de ${_ejerciciosDeIntervalos.length} ejercicios, '
-                '$_segundosFuerte s fuerte y $_segundosPausa s de pausa cada uno',
-            'En cada vuelta: $_nombresDeEjerciciosDeIntervalos',
-            '${_segundosEntreVueltas ~/ 60} min caminando entre vueltas',
-            '$_minutosBajada min caminando para bajar',
-            _intensidadFuerte,
-          ],
-        TipoSesion.descansoActivo => [
-            '$_minutosCaminataDescansoActivo min de caminata tranquila',
-            '${_minutosPorRondaDeMovilidad * _rondasDeMovilidad} min de movilidad, '
-                '$_rondasDeMovilidad rondas de $_minutosPorRondaDeMovilidad min',
-          ],
-        TipoSesion.fuerzaA || TipoSesion.fuerzaB => throw StateError('No es una sesión de cardio'),
-      };
+    TipoSesion.cardioSuave => [
+      _desdeCero
+          ? PlanCasa.troteDesdeCero(_semanaEfectiva).texto
+          : '$_minutosDeCardioSuave min de cardio suave',
+      _intensidadSuave,
+    ],
+    TipoSesion.intervalos => [
+      '$_minutosEntradaEnCalor min suaves: caminata o trote en el lugar',
+      '$_vueltas vueltas de ${_ejerciciosDeIntervalos.length} ejercicios, '
+          '$_segundosFuerte s fuerte y $_segundosPausa s de pausa cada uno',
+      'En cada vuelta: $_nombresDeEjerciciosDeIntervalos',
+      '${_segundosEntreVueltas ~/ 60} min caminando entre vueltas',
+      '$_minutosBajada min caminando para bajar',
+      _intensidadFuerte,
+    ],
+    TipoSesion.descansoActivo => [
+      '$_minutosCaminataDescansoActivo min de caminata tranquila',
+      '${_minutosPorRondaDeMovilidad * _rondasDeMovilidad} min de movilidad, '
+          '$_rondasDeMovilidad rondas de $_minutosPorRondaDeMovilidad min',
+    ],
+    TipoSesion.fuerzaA ||
+    TipoSesion.fuerzaB => throw StateError('No es una sesión de cardio'),
+  };
 
   int get _semanaEfectiva => Calendario.semanaEfectiva(semana);
 
   SemanaPlan get _plan => PlanCasa.semana(_semanaEfectiva);
 
-  int get _vueltas =>
-      _plan.tipoSabado == TipoSabado.intervalos ? _plan.sabadoVueltas : _vueltasFueraDelPlan;
+  int get _vueltas => _plan.tipoSabado == TipoSabado.intervalos
+      ? _plan.sabadoVueltas
+      : _vueltasFueraDelPlan;
 
-  int _minutosDeHoy() => _ahora().weekday == DateTime.saturday && _plan.sabadoMinutos > 0
+  int _minutosDeHoy() =>
+      _ahora().weekday == DateTime.saturday && _plan.sabadoMinutos > 0
       ? _plan.sabadoMinutos
       : _plan.martesMinutos;
 
@@ -172,15 +180,17 @@ class CardioViewModel extends ChangeNotifier {
     if (!puedeGuardar || _guardando) return false;
     _guardando = true;
     try {
-      await _repositorio.guardarSesion(RegistroSesion(
-        id: _repositorio.idNuevoDeSesion(),
-        fecha: _ahora(),
-        tipo: tipo,
-        semana: semana,
-        duracionMinutos: duracionRealMinutos,
-        sensacion: sensacion,
-        notas: notas.trim(),
-      ));
+      await _repositorio.guardarSesion(
+        RegistroSesion(
+          id: _repositorio.idNuevoDeSesion(),
+          fecha: _ahora(),
+          tipo: tipo,
+          semana: semana,
+          duracionMinutos: duracionRealMinutos,
+          sensacion: sensacion,
+          notas: notas.trim(),
+        ),
+      );
       return true;
     } finally {
       _guardando = false;
@@ -188,18 +198,19 @@ class CardioViewModel extends ChangeNotifier {
   }
 
   ControladorFases _crearControlador() => ControladorFases(
-        _armarFases(),
-        ahora: _ahora,
-        alCambiarFase: (_) => HapticFeedback.heavyImpact(),
-        alTerminar: HapticFeedback.heavyImpact,
-      )..addListener(notifyListeners);
+    _armarFases(),
+    ahora: _ahora,
+    alCambiarFase: (_) => HapticFeedback.heavyImpact(),
+    alTerminar: HapticFeedback.heavyImpact,
+  )..addListener(notifyListeners);
 
   List<FaseTemporizador> _armarFases() => switch (tipo) {
-        TipoSesion.cardioSuave => _fasesDeCardioSuave(),
-        TipoSesion.intervalos => _fasesDeIntervalos(),
-        TipoSesion.descansoActivo => _fasesDeDescansoActivo(),
-        TipoSesion.fuerzaA || TipoSesion.fuerzaB => throw StateError('No es una sesión de cardio'),
-      };
+    TipoSesion.cardioSuave => _fasesDeCardioSuave(),
+    TipoSesion.intervalos => _fasesDeIntervalos(),
+    TipoSesion.descansoActivo => _fasesDeDescansoActivo(),
+    TipoSesion.fuerzaA ||
+    TipoSesion.fuerzaB => throw StateError('No es una sesión de cardio'),
+  };
 
   List<FaseTemporizador> _fasesDeCardioSuave() {
     if (!_desdeCero) {
@@ -231,7 +242,8 @@ class CardioViewModel extends ChangeNotifier {
         FaseTemporizador(
           titulo: 'Caminá',
           segundos: bloque.caminarMin * 60,
-          detalle: 'Vuelta $vuelta de ${bloque.vueltas}. Recuperá el aire caminando.',
+          detalle:
+              'Vuelta $vuelta de ${bloque.vueltas}. Recuperá el aire caminando.',
           esDescanso: true,
         ),
       ],
@@ -247,7 +259,11 @@ class CardioViewModel extends ChangeNotifier {
         detalle: 'Caminata o trote en el lugar, bien suave.',
       ),
       for (var vuelta = 1; vuelta <= vueltas; vuelta++) ...[
-        for (var indice = 0; indice < _ejerciciosDeIntervalos.length; indice++) ...[
+        for (
+          var indice = 0;
+          indice < _ejerciciosDeIntervalos.length;
+          indice++
+        ) ...[
           FaseTemporizador(
             titulo: conPrimeraMayuscula(_ejerciciosDeIntervalos[indice].nombre),
             segundos: _segundosFuerte,
@@ -260,7 +276,8 @@ class CardioViewModel extends ChangeNotifier {
           FaseTemporizador(
             titulo: 'Pausa',
             segundos: _segundosPausa,
-            detalle: 'Sigue: ${_queSigueDespuesDeLaPausa(vuelta, vueltas, indice)}.',
+            detalle:
+                'Sigue: ${_queSigueDespuesDeLaPausa(vuelta, vueltas, indice)}.',
             esDescanso: true,
           ),
         ],
@@ -281,7 +298,11 @@ class CardioViewModel extends ChangeNotifier {
     ];
   }
 
-  String _queSigueDespuesDeLaPausa(int vuelta, int vueltas, int indiceDeEjercicio) {
+  String _queSigueDespuesDeLaPausa(
+    int vuelta,
+    int vueltas,
+    int indiceDeEjercicio,
+  ) {
     if (indiceDeEjercicio < _ejerciciosDeIntervalos.length - 1) {
       return _ejerciciosDeIntervalos[indiceDeEjercicio + 1].nombre;
     }
@@ -289,18 +310,18 @@ class CardioViewModel extends ChangeNotifier {
   }
 
   List<FaseTemporizador> _fasesDeDescansoActivo() => [
-        const FaseTemporizador(
-          titulo: 'Caminata',
-          segundos: _minutosCaminataDescansoActivo * 60,
-          detalle: 'Paso tranquilo, sin apuro. Hoy se recupera.',
-        ),
-        for (var ronda = 1; ronda <= _rondasDeMovilidad; ronda++)
-          FaseTemporizador(
-            titulo: 'Movilidad, ronda $ronda de $_rondasDeMovilidad',
-            segundos: _minutosPorRondaDeMovilidad * 60,
-            detalle: PlanCasa.movilidad.join('\n'),
-          ),
-      ];
+    const FaseTemporizador(
+      titulo: 'Caminata',
+      segundos: _minutosCaminataDescansoActivo * 60,
+      detalle: 'Paso tranquilo, sin apuro. Hoy se recupera.',
+    ),
+    for (var ronda = 1; ronda <= _rondasDeMovilidad; ronda++)
+      FaseTemporizador(
+        titulo: 'Movilidad, ronda $ronda de $_rondasDeMovilidad',
+        segundos: _minutosPorRondaDeMovilidad * 60,
+        detalle: PlanCasa.movilidad.join('\n'),
+      ),
+  ];
 
   @override
   void dispose() {

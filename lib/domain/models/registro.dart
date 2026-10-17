@@ -28,31 +28,34 @@ class Registro {
   final bool pendiente;
 
   Registro copiarCon({bool? pendiente}) => Registro(
-        id: id,
-        tipo: tipo,
-        datos: datos,
-        actualizado: actualizado,
-        borrado: borrado,
-        pendiente: pendiente ?? this.pendiente,
-      );
+    id: id,
+    tipo: tipo,
+    datos: datos,
+    actualizado: actualizado,
+    borrado: borrado,
+    pendiente: pendiente ?? this.pendiente,
+  );
 
   /// Forma que se envía al servidor (sin el estado local).
   Map<String, dynamic> aJsonRemoto() => {
-        'id': id,
-        'tipo': tipo,
-        'datos': datos,
-        'actualizado': actualizado,
-        'borrado': borrado,
-      };
+    'id': id,
+    'tipo': tipo,
+    'datos': datos,
+    'actualizado': actualizado,
+    'borrado': borrado,
+  };
 
-  Map<String, dynamic> aJsonLocal() => {...aJsonRemoto(), 'pendiente': pendiente};
+  Map<String, dynamic> aJsonLocal() => {
+    ...aJsonRemoto(),
+    'pendiente': pendiente,
+  };
 
   factory Registro.deJson(Map<String, dynamic> json) => Registro(
-        id: json['id'] as String,
-        tipo: json['tipo'] as String,
-        datos: Map<String, dynamic>.from(json['datos'] as Map),
-        actualizado: (json['actualizado'] as num).toInt(),
-        borrado: json['borrado'] == true || json['borrado'] == 1,
-        pendiente: json['pendiente'] == true,
-      );
+    id: json['id'] as String,
+    tipo: json['tipo'] as String,
+    datos: Map<String, dynamic>.from(json['datos'] as Map),
+    actualizado: (json['actualizado'] as num).toInt(),
+    borrado: json['borrado'] == true || json['borrado'] == 1,
+    pendiente: json['pendiente'] == true,
+  );
 }

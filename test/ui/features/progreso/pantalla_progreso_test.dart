@@ -18,8 +18,12 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     repositorio = RepositorioEntrenamiento(
-      almacenamiento: ServicioAlmacenamiento(await SharedPreferences.getInstance()),
-      api: ServicioApi(cliente: MockClient((_) async => http.Response('', 500))),
+      almacenamiento: ServicioAlmacenamiento(
+        await SharedPreferences.getInstance(),
+      ),
+      api: ServicioApi(
+        cliente: MockClient((_) async => http.Response('', 500)),
+      ),
       ahora: () => DateTime(2026, 10, 19, 9),
     );
     await repositorio.iniciar();
@@ -46,14 +50,21 @@ void main() {
 
   Finder campo(String etiqueta) => find.widgetWithText(TextFormField, etiqueta);
 
-  testWidgets('muestra los cuatro momentos y las instrucciones', (tester) async {
+  testWidgets('muestra los cuatro momentos y las instrucciones', (
+    tester,
+  ) async {
     await abrir(tester);
 
     expect(find.text('Cómo medir'), findsOneWidget);
     expect(find.text('Día 0'), findsOneWidget);
     await tester.drag(find.byType(ListView).first, const Offset(0, -1500));
     await tester.pump();
-    for (final titulo in ['Semana 4', 'Semana 8', 'Semana 13', 'Señales de que va bien']) {
+    for (final titulo in [
+      'Semana 4',
+      'Semana 8',
+      'Semana 13',
+      'Señales de que va bien',
+    ]) {
       expect(find.text(titulo, skipOffstage: false), findsOneWidget);
     }
   });
@@ -75,7 +86,9 @@ void main() {
     expect(find.text('12 rep'), findsOneWidget);
   });
 
-  testWidgets('un valor fuera de rango muestra el error y no guarda', (tester) async {
+  testWidgets('un valor fuera de rango muestra el error y no guarda', (
+    tester,
+  ) async {
     await abrir(tester);
 
     await tester.tap(find.text('Día 0'));
@@ -89,7 +102,9 @@ void main() {
     expect(repositorio.mediciones, isEmpty);
   });
 
-  testWidgets('guardar sin ningún dato avisa y deja el formulario abierto', (tester) async {
+  testWidgets('guardar sin ningún dato avisa y deja el formulario abierto', (
+    tester,
+  ) async {
     await abrir(tester);
 
     await tester.tap(find.text('Día 0'));
@@ -98,21 +113,37 @@ void main() {
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Cargá al menos un valor para poder guardar.'), findsOneWidget);
+    expect(
+      find.text('Cargá al menos un valor para poder guardar.'),
+      findsOneWidget,
+    );
     expect(repositorio.mediciones, isEmpty);
   });
 
-  testWidgets('editar una medición carga los valores que ya tenía', (tester) async {
+  testWidgets('editar una medición carga los valores que ya tenía', (
+    tester,
+  ) async {
     await repositorio.guardarMedicion(
-      Medicion(semana: 0, fecha: DateTime(2026, 10, 19), pesoKg: 75.5, flexiones: 10),
+      Medicion(
+        semana: 0,
+        fecha: DateTime(2026, 10, 19),
+        pesoKg: 75.5,
+        flexiones: 10,
+      ),
     );
     await abrir(tester);
 
     await tester.tap(find.text('Día 0'));
     await tester.pumpAndSettle();
 
-    expect(tester.widget<TextFormField>(campo('Peso (kg)')).controller?.text, '75,5');
-    expect(tester.widget<TextFormField>(campo('Flexiones (rep)')).controller?.text, '10');
+    expect(
+      tester.widget<TextFormField>(campo('Peso (kg)')).controller?.text,
+      '75,5',
+    );
+    expect(
+      tester.widget<TextFormField>(campo('Flexiones (rep)')).controller?.text,
+      '10',
+    );
   });
 
   testWidgets('historial vacío muestra un mensaje amable', (tester) async {
@@ -124,46 +155,54 @@ void main() {
     expect(find.text('Todavía no hay sesiones'), findsOneWidget);
   });
 
-  testWidgets('historial muestra el resumen, abre el detalle y borra con confirmación',
-      (tester) async {
-    await repositorio.guardarSesion(RegistroSesion(
-      id: 'sesion-1',
-      fecha: DateTime(2026, 10, 19, 8),
-      tipo: TipoSesion.fuerzaA,
-      semana: 1,
-      ejercicios: const [
-        RegistroEjercicio(ejercicioId: 'flexiones', nivel: 2, repeticiones: [12, 11]),
-      ],
-      sensacion: 7,
-      notas: 'Me sentí bien',
-    ));
-    await abrir(tester);
+  testWidgets(
+    'historial muestra el resumen, abre el detalle y borra con confirmación',
+    (tester) async {
+      await repositorio.guardarSesion(
+        RegistroSesion(
+          id: 'sesion-1',
+          fecha: DateTime(2026, 10, 19, 8),
+          tipo: TipoSesion.fuerzaA,
+          semana: 1,
+          ejercicios: const [
+            RegistroEjercicio(
+              ejercicioId: 'flexiones',
+              nivel: 2,
+              repeticiones: [12, 11],
+            ),
+          ],
+          sensacion: 7,
+          notas: 'Me sentí bien',
+        ),
+      );
+      await abrir(tester);
 
-    await tester.tap(find.text('Historial'));
-    await tester.pumpAndSettle();
-    expect(find.text('Fuerza A'), findsOneWidget);
-    expect(find.text('1 ejercicio, 2 series'), findsOneWidget);
-    expect(find.text('7/10'), findsOneWidget);
+      await tester.tap(find.text('Historial'));
+      await tester.pumpAndSettle();
+      expect(find.text('Fuerza A'), findsOneWidget);
+      expect(find.text('1 ejercicio, 2 series'), findsOneWidget);
+      expect(find.text('7/10'), findsOneWidget);
 
-    await tester.tap(find.text('Fuerza A'));
-    await tester.pumpAndSettle();
-    expect(find.text('Flexiones de brazos'), findsOneWidget);
-    expect(find.text('Nivel 2 · En el piso'), findsOneWidget);
-    expect(find.text('2 × 12, 11'), findsOneWidget);
-    expect(find.text('Me sentí bien'), findsOneWidget);
+      await tester.tap(find.text('Fuerza A'));
+      await tester.pumpAndSettle();
+      expect(find.text('Flexiones de brazos'), findsOneWidget);
+      expect(find.text('Nivel 2 · En el piso'), findsOneWidget);
+      expect(find.text('2 × 12, 11'), findsOneWidget);
+      expect(find.text('Me sentí bien'), findsOneWidget);
 
-    await tester.tap(find.text('Borrar sesión'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Cancelar'));
-    await tester.pumpAndSettle();
-    expect(repositorio.sesiones, hasLength(1));
+      await tester.tap(find.text('Borrar sesión'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+      expect(repositorio.sesiones, hasLength(1));
 
-    await tester.tap(find.text('Borrar sesión'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Borrar'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Borrar sesión'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Borrar'));
+      await tester.pumpAndSettle();
 
-    expect(repositorio.sesiones, isEmpty);
-    expect(find.text('Todavía no hay sesiones'), findsOneWidget);
-  });
+      expect(repositorio.sesiones, isEmpty);
+      expect(find.text('Todavía no hay sesiones'), findsOneWidget);
+    },
+  );
 }
