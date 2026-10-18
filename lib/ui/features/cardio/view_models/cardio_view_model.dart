@@ -12,9 +12,8 @@ import '../../../core/formato.dart';
 import '../../../core/temporizador_fases.dart';
 
 const _intensidadSuave =
-    'Esfuerzo de 4 a 5 sobre 10. Hablás en frases de 5 a 8 palabras. Pulso de 115 a 135 lpm.';
-const _intensidadFuerte =
-    'Esfuerzo 8 sobre 10. Solo palabras sueltas. Pulso de 160 lpm o más.';
+    'Esfuerzo de 4 a 5 sobre 10. Hablás en frases de 5 a 8 palabras.';
+const _intensidadFuerte = 'Esfuerzo 8 sobre 10. Solo palabras sueltas.';
 
 const _minutosEntradaEnCalor = 5;
 const _segundosFuerte = 40;

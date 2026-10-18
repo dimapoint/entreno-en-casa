@@ -115,7 +115,7 @@ class Guia {
     _semanas,
     _alimentacion,
     _medicion,
-    _alertas,
+    _cuandoSumarPeso,
   ];
 
   static const _objetivo = SeccionGuia(
@@ -297,24 +297,11 @@ class Guia {
       ),
       const SubtituloGuia('Cómo medir la intensidad'),
       const TablaGuia(
-        encabezados: [
-          'Intensidad',
-          'Esfuerzo (1 a 10)',
-          'Prueba de la charla',
-          'Pulso aproximado',
-        ],
+        encabezados: ['Intensidad', 'Esfuerzo (1 a 10)', 'Prueba de la charla'],
         filas: [
-          ['Suave', '4–5', 'Hablás en frases de 5–8 palabras', '115–135 lpm'],
-          [
-            'Fuerte (intervalos)',
-            '8',
-            'Solo palabras sueltas',
-            '160 lpm o más',
-          ],
+          ['Suave', '4–5', 'Hablás en frases de 5–8 palabras'],
+          ['Fuerte (intervalos)', '8', 'Solo palabras sueltas'],
         ],
-      ),
-      const NotaGuia(
-        'El pulso es una estimación para tu edad; si no tenés reloj, guiate por la charla.',
       ),
       const SubtituloGuia('Opciones para el cardio suave'),
       const ListaGuia([
@@ -476,11 +463,6 @@ class Guia {
         'intervalos muy tarde a la noche porque cuesta dormirse después.',
         etiqueta: 'Sueño',
       ),
-      ParrafoGuia(
-        'en las primeras 2 semanas es normal sentir los músculos doloridos 1–3 días. Caminar y '
-        'moverte suave lo alivia; entrenar con ese dolor difuso no hace daño.',
-        etiqueta: 'Dolor muscular',
-      ),
     ],
   );
 
@@ -540,17 +522,12 @@ class Guia {
     ],
   );
 
-  static const _alertas = SeccionGuia(
+  static const _cuandoSumarPeso = SeccionGuia(
     titulo: 'Cuándo sumar peso',
     icono: 'peso',
     bloques: [
       ParrafoGuia(
         'Para piernas, lo más probable es que necesites más peso entre las semanas 7 y 10.',
-      ),
-      ParrafoGuia(
-        'ardor en el músculo durante la serie, dolor muscular difuso 1–3 días después y '
-        'cansancio general las primeras 2 semanas.',
-        etiqueta: 'Es normal',
       ),
       ParrafoGuia(
         'cuando estás en el nivel 3 de búlgara o zancadas y igual hacés más de 15 repeticiones '

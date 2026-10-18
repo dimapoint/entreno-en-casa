@@ -80,7 +80,6 @@ void main() {
       await tester.pumpAndSettle();
     }
     expect(find.textContaining('120–150 g de proteína'), findsOneWidget);
-    expect(find.textContaining('115–135 lpm'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

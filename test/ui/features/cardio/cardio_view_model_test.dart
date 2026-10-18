@@ -56,7 +56,7 @@ void main() {
       expect(fases.single.segundos, 25 * 60);
       expect(
         fases.single.detalle,
-        allOf(contains('4 a 5'), contains('115 a 135')),
+        allOf(contains('4 a 5'), contains('frases de 5 a 8 palabras')),
       );
     });
 
@@ -213,7 +213,7 @@ void main() {
       expect(fases[1].esDescanso, isFalse);
       expect(
         fases[1].detalle,
-        allOf(startsWith('Vuelta 1 de 3.'), contains('160 lpm')),
+        allOf(startsWith('Vuelta 1 de 3.'), contains('Esfuerzo 8')),
       );
       expect(fases[2].titulo, 'Pausa');
       expect(fases[2].segundos, 20);

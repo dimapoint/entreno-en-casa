@@ -86,9 +86,9 @@ void main() {
     });
 
     test('con varias palabras la sección tiene que tener todas', () {
-      viewModel.buscar('pulso charla');
+      viewModel.buscar('esfuerzo charla');
       expect(_titulos(viewModel), ['Cardio']);
-      viewModel.buscar('pulso proteina');
+      viewModel.buscar('esfuerzo proteina');
       expect(viewModel.seccionesVisibles, isEmpty);
     });
 
@@ -179,8 +179,6 @@ void main() {
         '8–10 min de calentamiento',
         '5 min de vuelta a la calma',
         '2 repeticiones más',
-        '115–135 lpm',
-        '160 lpm o más',
         '3 vueltas de 5 min trotando + 1 min caminando',
         '20 min seguidos de trote suave',
         '40 s fuerte y 20 s de pausa',
