@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Tema {
   const Tema._();
 
-  static const _acento = Color(0xFFE4572E);
+  static const _acento = Color(0xFFC93F18);
   static const _radioTarjeta = 16.0;
   static const _radioControl = 12.0;
 

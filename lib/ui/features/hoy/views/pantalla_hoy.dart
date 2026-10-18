@@ -93,7 +93,7 @@ class _EstadoPantallaHoy extends State<PantallaHoy>
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 12,
+          spacing: 16,
           children: switch (_viewModel.etapa) {
             EtapaHoy.sinFechaDeInicio => [
               _TarjetaBienvenida(
@@ -245,12 +245,37 @@ class _EncabezadoDeLaSemana extends StatelessWidget {
         Text(viewModel.tituloDeLaSemana, style: tema.textTheme.headlineSmall),
         if (viewModel.cicloRepetido)
           Text('Ciclo repetido: semana efectiva ${viewModel.semanaEfectiva}'),
-        Text(
-          'Fase ${plan.fase.etiqueta.toLowerCase()}',
-          style: tema.textTheme.titleSmall,
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _Etiqueta('Fase ${plan.fase.etiqueta.toLowerCase()}'),
+            _Etiqueta('Fuerza: ${plan.fuerzaTexto}'),
+          ],
         ),
-        Text('Fuerza: ${plan.fuerzaTexto}'),
       ],
+    );
+  }
+}
+
+class _Etiqueta extends StatelessWidget {
+  const _Etiqueta(this.texto);
+
+  final String texto;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: tema.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Text(texto, style: tema.textTheme.labelLarge),
+      ),
     );
   }
 }
@@ -332,10 +357,10 @@ class _TarjetaDeHoy extends StatelessWidget {
             spacing: 8,
             children: [
               Text('Sesión de hoy', style: tema.textTheme.labelLarge),
-              Text(tipo.etiqueta, style: tema.textTheme.headlineSmall),
+              Text(tipo.etiqueta, style: tema.textTheme.headlineMedium),
               Text(
                 'Duración: ${viewModel.duracionDeHoy}',
-                style: tema.textTheme.titleSmall,
+                style: tema.textTheme.titleMedium,
               ),
               Text(viewModel.detalleDeHoy!),
               if (viewModel.hizoSesionHoy)
@@ -487,12 +512,11 @@ class _TarjetaHito extends StatelessWidget {
   final String hito;
 
   @override
-  Widget build(BuildContext context) => Card.outlined(
-    child: ListTile(
-      leading: const Icon(Icons.flag_outlined),
-      title: const Text('Hito de la semana'),
-      subtitle: Text(hito),
-    ),
+  Widget build(BuildContext context) => ListTile(
+    contentPadding: EdgeInsets.zero,
+    leading: const Icon(Icons.flag_outlined),
+    title: const Text('Hito de la semana'),
+    subtitle: Text(hito),
   );
 }
 
@@ -534,19 +558,17 @@ class _NotaSemanaComplicada extends StatelessWidget {
   const _NotaSemanaComplicada();
 
   @override
-  Widget build(BuildContext context) => Card.outlined(
-    clipBehavior: Clip.antiAlias,
-    child: const ExpansionTile(
-      shape: Border(),
-      collapsedShape: Border(),
-      title: Text('¿Semana complicada?'),
-      childrenPadding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-      expandedCrossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Si tenés parciales o una semana imposible, quedate con el mínimo: 2 sesiones de fuerza de 30 min, con 2 series por ejercicio, y caminá todo lo que puedas. Sostener el hábito pesa más que hacer la sesión perfecta.',
-        ),
-      ],
-    ),
+  Widget build(BuildContext context) => const ExpansionTile(
+    shape: Border(),
+    collapsedShape: Border(),
+    tilePadding: EdgeInsets.zero,
+    title: Text('¿Semana complicada?'),
+    childrenPadding: EdgeInsets.only(bottom: 16),
+    expandedCrossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'Si tenés parciales o una semana imposible, quedate con el mínimo: 2 sesiones de fuerza de 30 min, con 2 series por ejercicio, y caminá todo lo que puedas. Sostener el hábito pesa más que hacer la sesión perfecta.',
+      ),
+    ],
   );
 }
