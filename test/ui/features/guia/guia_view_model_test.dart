@@ -54,7 +54,7 @@ void main() {
         'Las 13 semanas',
         'Alimentación, sueño y recuperación',
         'Cómo medir el progreso',
-        'Señales de alerta y cuándo sumar peso',
+        'Cuándo sumar peso',
       ]);
       expect(viewModel.buscando, isFalse);
     });

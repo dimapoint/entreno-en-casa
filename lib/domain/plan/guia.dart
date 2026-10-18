@@ -134,10 +134,6 @@ class Guia {
       SubtituloGuia('Antes del primer entrenamiento'),
       ListaGuia([
         ItemGuia(
-          'Apto físico con un clínico: llevá el análisis de octubre y preguntá si hay alguna '
-          'restricción para intervalos intensos.',
-        ),
-        ItemGuia(
           'Hacé las mediciones del día 0 (sección "Cómo medir el progreso").',
         ),
         ItemGuia(
@@ -549,24 +545,12 @@ class Guia {
   );
 
   static const _alertas = SeccionGuia(
-    titulo: 'Señales de alerta y cuándo sumar peso',
-    icono: 'alertas',
+    titulo: 'Cuándo sumar peso',
+    icono: 'peso',
     bloques: [
       ParrafoGuia(
-        'Cortá el entrenamiento y consultá si aparece algo de la primera lista. Para piernas, '
-        'lo más probable es que necesites más peso entre las semanas 7 y 10.',
+        'Para piernas, lo más probable es que necesites más peso entre las semanas 7 y 10.',
       ),
-      SubtituloGuia('Pará y consultá a un médico si sentís:'),
-      ListaGuia([
-        ItemGuia('Dolor o presión en el pecho, mareo o palpitaciones raras.'),
-        ItemGuia(
-          'Falta de aire que no corresponde al esfuerzo o que no se va al frenar.',
-        ),
-        ItemGuia(
-          'Dolor punzante en una articulación, o que dura más de 3 días.',
-        ),
-        ItemGuia('Dolor de espalda que baja por la pierna, u hormigueo.'),
-      ]),
       ParrafoGuia(
         'ardor en el músculo durante la serie, dolor muscular difuso 1–3 días después y '
         'cansancio general las primeras 2 semanas.',

@@ -290,9 +290,6 @@ class _SeccionAcercaDe extends StatelessWidget {
     titulo: 'Acerca de',
     hijos: [
       Text('Entreno en casa: plan de entrenamiento en casa de 13 semanas.'),
-      Text(
-        'Aviso médico: esta app no reemplaza la opinión de un profesional. Antes de arrancar hacete un apto físico con un clínico y preguntale si tenés alguna restricción para los intervalos intensos. Si algo te duele o te sentís mal, frená.',
-      ),
     ],
   );
 }

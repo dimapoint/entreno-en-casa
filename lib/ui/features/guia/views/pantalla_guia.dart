@@ -14,7 +14,7 @@ const _iconos = <String, IconData>{
   'semanas': Icons.event_note_outlined,
   'alimentacion': Icons.restaurant_outlined,
   'medicion': Icons.straighten,
-  'alertas': Icons.warning_amber_outlined,
+  'peso': Icons.fitness_center_outlined,
 };
 
 TextStyle? _estiloCuerpo(BuildContext context) =>
@@ -61,7 +61,6 @@ class _EstadoPantallaGuia extends State<PantallaGuia> {
         builder: (context, _) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _AvisoMedico(),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: TextField(
@@ -88,37 +87,6 @@ class _EstadoPantallaGuia extends State<PantallaGuia> {
       ),
     ),
   );
-}
-
-class _AvisoMedico extends StatelessWidget {
-  const _AvisoMedico();
-
-  @override
-  Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    return Container(
-      color: esquema.secondaryContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Row(
-        children: [
-          Icon(
-            Icons.medical_services_outlined,
-            size: 20,
-            color: esquema.onSecondaryContainer,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'La app no reemplaza la consulta médica. Antes de arrancar, pedile el apto físico '
-              'a un clínico.',
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: esquema.onSecondaryContainer),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _ListaSecciones extends StatelessWidget {

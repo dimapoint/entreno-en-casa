@@ -50,13 +50,13 @@ void main() {
   tearDown(() => repositorio.dispose());
 
   testWidgets(
-    'muestra el aviso médico y las secciones a 360 px sin desbordes',
+    'muestra las secciones a 360 px sin desbordes y sin aviso médico',
     (tester) async {
       await _mostrar(tester, repositorio);
 
       expect(
         find.textContaining('no reemplaza la consulta médica'),
-        findsOneWidget,
+        findsNothing,
       );
       for (final seccion in Guia.secciones) {
         expect(

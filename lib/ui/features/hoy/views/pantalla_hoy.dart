@@ -12,12 +12,11 @@ import '../view_models/hoy_view_model.dart';
 const _tamanoMinimoDeBoton = Size(64, 48);
 
 const _preparativos = [
-  'Apto físico con un clínico: llevá el análisis de octubre y preguntá si hay alguna restricción para intervalos intensos.',
   'Hacé las mediciones del día 0.',
   'Prepará el espacio: unos 2 × 2 m libres, con piso liso para el curl femoral con toalla.',
   'Probá que la mesa del remo invertido aguante tu peso.',
 ];
-const _indicePreparativoDeMediciones = 1;
+const _indicePreparativoDeMediciones = 0;
 
 class PantallaHoy extends StatefulWidget {
   /// [ahora] solo se pasa en las pruebas, para fijar el día.

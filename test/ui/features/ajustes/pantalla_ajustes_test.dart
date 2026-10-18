@@ -49,7 +49,7 @@ void main() {
       find.textContaining('no tiene un servidor configurado'),
       findsOneWidget,
     );
-    expect(find.textContaining('Aviso médico'), findsOneWidget);
+    expect(find.textContaining('Aviso médico'), findsNothing);
     expect(
       tester
           .widget<FilledButton>(
