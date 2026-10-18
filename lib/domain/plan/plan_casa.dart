@@ -136,10 +136,6 @@ class PlanCasa {
           'Errores comunes',
           'Bajar la cadera al estirar, hacerlo sobre alfombra (no desliza).',
         ),
-        NotaTecnica(
-          'Ojo',
-          'Al principio es común un calambre atrás del muslo. Si pasa, frená, estirá 20 s y seguí.',
-        ),
       ],
     ),
     Ejercicio(
@@ -374,10 +370,6 @@ class PlanCasa {
         NotaTecnica(
           'Errores comunes',
           'Bajar demasiado, codos abiertos hacia los costados, hombros subiendo a las orejas.',
-        ),
-        NotaTecnica(
-          'Si te molesta el hombro',
-          'Cambialo por flexiones con las manos juntas debajo del pecho.',
         ),
       ],
     ),

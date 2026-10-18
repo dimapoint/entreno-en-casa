@@ -127,10 +127,6 @@ class Guia {
         'entrenando en casa 5 días por semana. Arrancás sedentario, con 1,80 m y unos 75 kg, '
         'así que las primeras 4 semanas son suaves a propósito.',
       ),
-      ParrafoGuia(
-        'El cardio y la alimentación del plan también apuntan a mejorar el colesterol y el '
-        'hepatograma del análisis de octubre.',
-      ),
       SubtituloGuia('Antes del primer entrenamiento'),
       ListaGuia([
         ItemGuia(
@@ -415,7 +411,7 @@ class Guia {
     bloques: [
       ParrafoGuia(
         'Apuntá a 120–150 g de proteína por día, repartidos en 4 comidas, y bajá las grasas '
-        'saturadas: eso sostiene el músculo y ayuda con el colesterol. No hace falta contar '
+        'saturadas: eso sostiene el músculo. No hace falta contar '
         'calorías; con la proteína alta y menos comida chatarra, la recomposición se da sola.',
       ),
       SubtituloGuia('Fuentes de proteína (valores aproximados)'),
@@ -455,7 +451,7 @@ class Guia {
           etiqueta: 'Cena',
         ),
       ]),
-      SubtituloGuia('Para el colesterol'),
+      SubtituloGuia('Qué priorizar y qué evitar'),
       ListaGuia([
         ItemGuia(
           'avena, legumbres, frutas, verduras, aceite de oliva, palta, nueces.',

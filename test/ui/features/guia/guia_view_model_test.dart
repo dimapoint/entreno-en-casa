@@ -88,7 +88,7 @@ void main() {
     test('con varias palabras la sección tiene que tener todas', () {
       viewModel.buscar('pulso charla');
       expect(_titulos(viewModel), ['Cardio']);
-      viewModel.buscar('pulso colesterol');
+      viewModel.buscar('pulso proteina');
       expect(viewModel.seccionesVisibles, isEmpty);
     });
 
