@@ -3,6 +3,8 @@
   "name": "entreno-en-casa",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false,
   "assets": {
     "directory": "../build/web",
     "binding": "ASSETS",
@@ -13,8 +15,7 @@
     {
       "binding": "DB",
       "database_name": "entreno-en-casa",
-      // Id de relleno: se reemplaza por el que devuelve `bunx wrangler d1 create entreno-en-casa`.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "fbb7e329-a10a-4153-b188-1a6cab18212d",
       "migrations_dir": "migrations"
     }
   ]
