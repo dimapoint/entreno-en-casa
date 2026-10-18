@@ -36,6 +36,7 @@ netstat -ano | grep ":8765 " | grep LISTENING | awk '{print $5}' | sort -u | xar
 - Estado inicial: sin fecha de inicio, la pestaña Hoy muestra "Arrancar el lunes …". El estado se guarda en `localStorage` del navegador; para empezar de cero, `localStorage.clear()` con `javascript_tool` y recargar.
 
 ## Gotchas
+- En emulación `mobile` los clics con `coordinate` no llegan a los botones de Flutter (el marco de la captura cambia entre 469×1015 y 750×1624). Se maneja solo con teclado: `Tab` (varias veces en una sola llamada, por ejemplo `Tab Tab`) y `Return`. El orden de foco es el visual, de arriba hacia abajo. Para sembrar datos: `localStorage.setItem('flutter.registros_v1', JSON.stringify(JSON.stringify([...])))` (el plugin guarda JSON dentro de JSON) y recargar.
 - Con `resize_window` en preset `mobile` (375×812), la captura sale en un marco de 469×1015 y **recortada a la derecha**: parece un bug de la app pero no lo es. En ancho de escritorio se ve completa. Para revisar anchos de celular, confiar en los widget tests a 360 dp.
 - El panel de escritorio es chico (800×450): muestra el riel lateral y el contenido cortado. Es normal.
 - La primera captura después de `navigate` puede dar timeout de 5 s: reintentar.
